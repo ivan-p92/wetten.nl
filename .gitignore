@@ -1,0 +1,8 @@
+*.pyc
+*.gml
+*.pickle
+*.gz
+*.zip
+*.txt
+.project
+.pydevproject
