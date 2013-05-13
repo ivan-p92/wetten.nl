@@ -16,7 +16,7 @@ import pickle
 
 class CitesParser:
     
-    def __init__(self, inOrOut='both', makeNetwork=False, logName=False):
+    def __init__(self, inOrOut='none', makeNetwork=False, logName=False):
         
         # Provide the correct locations for the SPARQL result files
         self.citesInDir = '../../Cites_in/'
