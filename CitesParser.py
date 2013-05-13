@@ -2,7 +2,7 @@
 Created on 6 mei 2013
 
 Parses SPARQL XML results and converts/stores them to a format
-suitable for centrality measurement.
+suitable for centrality measurement (networkx graph format).
 
 @author: Ivan
 '''
@@ -18,10 +18,11 @@ class CitesParser:
     
     def __init__(self, inOrOut='none', makeNetwork=False, logName=False):
         
-        # Provide the correct locations for the SPARQL result files
+        # Provide the correct locations for the SPARQL result files.
         self.citesInDir = '../../Cites_in/'
         self.citesOutDir = '../../Cites_out/'
         
+        # Get lists of file names.
         self.citeInFiles = self.getCiteFiles(self.citesInDir)
         self.citeOutFiles = self.getCiteFiles(self.citesOutDir)
         
@@ -30,22 +31,26 @@ class CitesParser:
             self.logName = logName + ' '
         else:
             self.logName = False
+            
+        # Assume all citations will be parsed succesfully
         self.encounteredUnknownPattern = False
         
         self.makeNetwork = makeNetwork
         if(makeNetwork):
             self.G = nx.Graph()
         
-        # Parse the citations for incoming or outgoing
+        # Parse the citations for incoming or outgoing or both or none
         if inOrOut == 'both':
             self.parseCitations('out')
             self.parseCitations('in')
         elif inOrOut == 'in' or inOrOut == 'out':
             self.parseCitations(inOrOut)
-            
+        
+        # Write the log to disk if logging is enabled    
         if(logName):
             self.writeLog()
-            
+        
+        # Save network to disk if a network was made    
         if(makeNetwork):
             fileName = 'Graph ' + time.ctime(time.time())
             nx.write_gml(self.G, fileName + '.gml')
@@ -102,7 +107,8 @@ class CitesParser:
             citesDir = self.citesInDir
         else:
             return
-            
+        
+        # Parse each file    
         for bwbFile in files:
             print '\nParsing file: ' + bwbFile + '...'
             xml = mini.parse(citesDir + bwbFile)
@@ -120,6 +126,7 @@ class CitesParser:
                 self.log += '\n##################'
             print 'Handling results...'
             
+            # Handle all results for the current file
             for result in results:
                 bindings = result.getElementsByTagName('binding')
                 self.handleBindings(bindings, inOrOut)
@@ -129,7 +136,13 @@ class CitesParser:
     
     def handleBindings(self, bindings, inOrOut):
         '''
-        
+        Extracts the correct URI's from the bindings and
+        retrieves shorter descriptions to use as labels in the
+        network.
+        @param bindings: list of xml bindings
+        @param inOrOut: 'in' or 'out' to discriminate between
+            the structure of the bindings of incoming and outgoing
+            citations 
         '''
         # Get uri's for citing and cited entities
         if inOrOut == 'out':   
