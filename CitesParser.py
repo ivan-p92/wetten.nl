@@ -204,7 +204,8 @@ class CitesParser:
         if BWB and (entity or entity == ''):
             if(self.logName):
                 self.log += '\nCited BWB/entity: ' + BWB + entity
-            return BWB + entity
+            # Return BWB/entity and replace possible occurrences of %3A with ':'
+            return re.sub('%3A', ':', BWB + entity)
             
         else:
             self.encounteredUnknownPattern = True

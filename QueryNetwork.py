@@ -48,6 +48,7 @@ class QueryNetwork:
         saves the resulting dictionary to the hard drive.
         """
         t = time.time()
+        print '\nCalculating degree...'
         self.degree = nx.degree(self.G)
         print 'Degree calculation time: ' + str(int(time.time() - t)) + ' seconds'
         pickle.dump(self.degree, open('degree.pickle', 'w'))
@@ -58,6 +59,7 @@ class QueryNetwork:
         saves the resulting dictionary to the hard drive.
         """
         t = time.time()
+        print '\nCalculating degree centrality...'
         self.degreeCentrality = nx.degree_centrality(self.G)
         print 'Degree centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
         pickle.dump(self.degreeCentrality, open('degree_centrality.pickle', 'w'))
@@ -68,6 +70,7 @@ class QueryNetwork:
         saves the resulting dictionary to the hard drive.
         """
         t = time.time()
+        print '\nCalculating betweenness centrality...'
         self.betweenness = nx.betweenness_centrality(self.G)
         print 'Betweenness centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
         pickle.dump(self.betweenness, open('betweenness_centrality.pickle', 'w'))
@@ -79,6 +82,7 @@ class QueryNetwork:
         Note: doesn't converge, so doesn't yield a result
         """
         t = time.time()
+        print '\nCalculating eigenvector centrality...'
         self.eigenvector = nx.eigenvector_centrality(self.G, max_iter=1000)
         print 'Eigenvector centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
         pickle.dump(self.eigenvector, open('eigenvector_centrality.pickle', 'w'))
@@ -90,6 +94,7 @@ class QueryNetwork:
         Note: very similar to betweenness centrality
         """
         t = time.time()
+        print '\nCalculating load centrality...'
         self.loadCentrality = nx.load_centrality(self.G)
         print 'Load centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
         pickle.dump(self.loadCentrality, open('load_centrality.pickle', 'w'))
@@ -100,9 +105,18 @@ class QueryNetwork:
         saves the resulting dictionary to the hard drive.
         """
         t = time.time()
+        print '\nCalculating closeness centrality...'
         self.closenessCentrality = nx.closeness_centrality(self.G)
         print 'Closeness centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
         pickle.dump(self.closenessCentrality, open('closeness_centrality.pickle', 'w'))
+    
+    def calcAndPickleAll(self):
+        self.calcAndPickleDegree()
+        self.calcAndPickleDegreeCentrality()
+        self.calcAndPickleBetweenness()
+        self.calcAndPickleClosenessCentrality()
+        self.calcAndPickleLoadCentrality()
+        print '\nCalculated and pickled all..'
     
     def loadMeasurements(self):
         """
@@ -205,6 +219,8 @@ class QueryNetwork:
         # Retrieve sorted lists of tuples for degree and betweenness centrality    
         degreeCentrality = self.orderNodesByDegreeCentrality(entities)
         betweenness = self.orderNodesByBetweenness(entities)
+        
+        closeness = self.orderNodesByCloseness(entities)
         #print '\nDegree centralities:\n' + str(degreeCentrality)
         #print '\n\nBetweenness centralities:\n' + str(betweenness)
         
@@ -228,8 +244,10 @@ class QueryNetwork:
         # ranking and original degree/betweenness values).
         degreeCentrality = dict(degreeCentrality)
         betweenness = dict(betweenness)
+        closeness = dict(closeness)
         for entity in sortedEntities:
-            print entity[0] + ', \t\t' + str(degreeCentrality[entity[0]]) + ', \t' + str(betweenness[entity[0]])
+            print entity[0] + ', \t\t' + str(degreeCentrality[entity[0]]) + ', \t' + str(betweenness[entity[0]]) \
+                + ', \t' + str(closeness[entity[0]])
         print '\n\n'
         
         # Return a list of only the entities
@@ -275,6 +293,20 @@ class QueryNetwork:
         # Sort them from large to small
         result.sort(key= lambda x: x[1], reverse=True)
         return result
+    
+    def orderNodesByCloseness(self, nodes):
+        """
+        Returns a list of the nodes and their closeness centrality values,
+        sorted by closeness centrality.
+        @param nodes: list of nodes.
+        @return: list of tuples in the form of [(node, closenessCentrality)]
+        """
+        # Get the betweenness values for given nodes
+        result = [(k, self.closenessCentrality[k]) for k in nodes]
+        
+        # Sort them from large to small
+        result.sort(key= lambda x: x[1], reverse=True)
+        return result
 
 def main():
     
@@ -286,7 +318,7 @@ def main():
             break
         
         start_time = time.time()
-        print 'Query result: ' + str(queryNetwork.getDegree(node))
+        print 'Query result: ' + str(queryNetwork.sortRelatedEntities(node))
         print 'Query time: ' + str(int(time.time() - start_time)) + ' seconds'
     pass
     
