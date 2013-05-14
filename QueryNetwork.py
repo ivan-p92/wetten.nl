@@ -133,7 +133,8 @@ class QueryNetwork:
         Related entities are either direct neighbours or neighbours
         of those neighbours.
         @param entity: the entity, e.g. "BWBR0011353/artikel/5.3"
-        @return: set of nodes, in list format 
+        @return: list of two lists: first the direct neighbours,
+            then the indirect ones. 
         """
         directNeighbours = self.getNeighboursForEntity(entity)
         
@@ -144,8 +145,9 @@ class QueryNetwork:
         # Add indirect neighbours to the direct ones
         for neighbour in directNeighbours:
             indirectNeighbours += self.getNeighboursForEntity(neighbour)
-            
-        return list(set(directNeighbours + indirectNeighbours))
+        
+        indirectNeighbours = list(set(indirectNeighbours))    
+        return [directNeighbours] + [indirectNeighbours]
     
     def sortRelatedEntities(self, entity):
         """
@@ -156,7 +158,13 @@ class QueryNetwork:
         if not relatedEntities:
             return []
         
-        return self.sortEntities(relatedEntities)
+        sortedDirect = self.sortEntities(relatedEntities[0])
+        if relatedEntities[1]:
+            sortedIndirect = self.sortEntities(relatedEntities[1])
+        else:
+            sortedIndirect = []
+        
+        return sortedDirect + sortedIndirect
     
     def sortEntitiesForBWB(self, bwb):
         """
@@ -185,8 +193,8 @@ class QueryNetwork:
         # Retrieve sorted lists of tuples for degree and betweenness centrality    
         degreeCentrality = self.orderNodesByDegreeCentrality(entities)
         betweenness = self.orderNodesByBetweenness(entities)
-        print '\nDegree centralities:\n' + str(degreeCentrality)
-        print '\n\nBetweenness centralities:\n' + str(betweenness)
+        #print '\nDegree centralities:\n' + str(degreeCentrality)
+        #print '\n\nBetweenness centralities:\n' + str(betweenness)
         
         degreeIndices = {}
         betweennessIndices = {}
@@ -204,7 +212,7 @@ class QueryNetwork:
         # Sort the list by taking the sum of the rankings
         sortedEntities = sorted(mergedIndices, key = lambda x: x[1] + x[2])
         
-        # Conversion to dictionaries solely for debugging purposes (analysing
+        # Conversion to dictionaries solely for debugging purposes (analyzing
         # ranking and original degree/betweenness values).
         degreeCentrality = dict(degreeCentrality)
         betweenness = dict(betweenness)
