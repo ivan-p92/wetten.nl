@@ -28,6 +28,7 @@ class QueryNetwork:
         self.betweenness = None
         self.eigenvector = None
         self.loadCentrality = None
+        self.closenessCentrality = None
         self.didLoadMeasurements = False
         
     def getDegreeForNode(self, node):
@@ -92,6 +93,16 @@ class QueryNetwork:
         self.loadCentrality = nx.load_centrality(self.G)
         print 'Load centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
         pickle.dump(self.loadCentrality, open('load_centrality.pickle', 'w'))
+        
+    def calcAndPickleClosenessCentrality(self):
+        """
+        Calculates the closeness centrality for all nodes in the network and
+        saves the resulting dictionary to the hard drive.
+        """
+        t = time.time()
+        self.closenessCentrality = nx.closeness_centrality(self.G)
+        print 'Closeness centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
+        pickle.dump(self.closenessCentrality, open('closeness_centrality.pickle', 'w'))
     
     def loadMeasurements(self):
         """
@@ -105,6 +116,7 @@ class QueryNetwork:
         self.betweenness = pickle.load(open('betweenness_centrality.pickle', 'r'))
 #         self.eigenvector = None
         self.loadCentrality = pickle.load(open('load_centrality.pickle', 'r'))
+        self.closenessCentrality = pickle.load(open('closeness_centrality.pickle', 'r'))
         print 'Loaded measurements in ' + str(int(time.time() - t)) + ' seconds'
         self.didLoadMeasurements = True
         
@@ -218,6 +230,7 @@ class QueryNetwork:
         betweenness = dict(betweenness)
         for entity in sortedEntities:
             print entity[0] + ', \t\t' + str(degreeCentrality[entity[0]]) + ', \t' + str(betweenness[entity[0]])
+        print '\n\n'
         
         # Return a list of only the entities
         return [entity[0] for entity in sortedEntities]
