@@ -177,9 +177,11 @@ class QueryNetwork:
     
     def sortRelatedEntities(self, entity):
         """
-        Retrieves and sorts related entities.
+        Retrieves and sorts related entities. Separates entities from the
+        same BWB and those from other BWB's
         @param entity: entity for which related entities will be taken
         """
+        bwb = entity.split('/')[0]
         relatedEntities = self.getRelatedEntities(entity)
         if not relatedEntities:
             return []
@@ -190,7 +192,21 @@ class QueryNetwork:
         else:
             sortedIndirect = []
         
-        return sortedDirect + sortedIndirect
+        allEntities = sortedDirect + sortedIndirect
+        
+        return self.separateInternalFromExternal(allEntities, bwb)
+    
+    def separateInternalFromExternal(self, entities, bwb):
+        
+        internal = []
+        external = []
+        for entity in entities:
+            if entity.startswith(bwb):
+                internal += [entity]
+            else:
+                external += [entity]
+        
+        return {'internal': internal, 'external': external}
     
     def sortEntitiesForBWB(self, bwb):
         """
