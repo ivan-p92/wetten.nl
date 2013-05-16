@@ -62,7 +62,8 @@ class CitesParser:
         Retrieves all file names for xml files that start with BWB at
         given path.
         
-        @param dirPath: path of directory (relative or absolute) 
+        @param dirPath: path of directory (relative or absolute)
+        @return: list of file names
         '''
         
         files = []
@@ -97,6 +98,7 @@ class CitesParser:
                              '\n/------------------------------/')
             files = self.citeOutFiles
             citesDir = self.citesOutDir
+            
         elif inOrOut == 'in':
             print '\nParsing all incoming citations...'
             if(self.logName):
@@ -111,6 +113,8 @@ class CitesParser:
         # Parse each file    
         for bwbFile in files:
             print '\nParsing file: ' + bwbFile + '...'
+            
+            # Get xml tree for the current file
             xml = mini.parse(citesDir + bwbFile)
 #             variables = xml.getElementsByTagName('variable')
 #             print 'Variables: '
@@ -145,10 +149,15 @@ class CitesParser:
             citations 
         '''
         # Get uri's for citing and cited entities
-        if inOrOut == 'out':   
+        if inOrOut == 'out':
+            # For outgoing citations, the desired URI's are the second and third variables.
+            # Note: if SPARQL results change in format (more variables, different order),
+            #    the |bindings| indices must be changed accordingly
             citing = bindings[1].getElementsByTagName('uri')[0].firstChild.nodeValue
             cited = bindings[2].getElementsByTagName('uri')[0].firstChild.nodeValue
         else:
+            # For incoming citations, the desired URI's are the first and second variables.
+            # Note: see previous note.
             citing = bindings[0].getElementsByTagName('uri')[0].firstChild.nodeValue
             cited = bindings[1].getElementsByTagName('uri')[0].firstChild.nodeValue
         
@@ -160,21 +169,46 @@ class CitesParser:
         citingEntity = self.entityDescription(citing)
         citedEntity = self.entityDescription(cited)
         
+        # If a network should be created and both URI's were parsed successfully,
+        # add an edge.
+        # Note: parallel edges aren't allowed, so if an edge already exists, it
+        # isn't added again.
         if(self.makeNetwork and citingEntity and citedEntity):
             self.G.add_edge(citingEntity, citedEntity)    
 
     def entityDescription(self, citation):
+        """
+        Given a URI, creates and returns a shorter description of the entity,
+        ready for use as node name for the network.
+        
+        @param citation: the citation URI (string)
+        @return: the new, shorter description (string), or False if parsing
+            wasn't successful.
+        """
+        
+        # First, retrieve the BWB number
         BWB = re.findall('BWBR\d{7}', citation)
         if BWB.__len__() > 0:
+            # If the BWB was found, take it
             BWB = BWB[0]
         elif re.findall('BWBW\d{5}', citation).__len__() > 0:
+            # Else if the citing/cited entity has a BWBW\d{5} pattern,
+            # retrieve that one
             BWB = re.findall('BWBW\d{5}', citation)[0]    
         else:
-            return False
+            # Unknown BWB pattern
             print '\nCritical: cited has no BWB:\n' + citation
+            return False
           
-        entity = False  
+        entity = False
+        # Find the first match and handle accordingly.
+        # The order is very important, putting a higher level
+        # (e.g. hoofdstuk) before a lower level entity (e.g. artikel)
+        # will result in many lower level entities being wrongly
+        # abstracted to the higher level.
         if re.search('BWBR\d{7}$', citation):
+            # If the cited entity is an entire BWB, then the entity
+            # is empty.
             entity = ''    
         if citation.find('/bijlage/') > -1:
             entity = self.handleBijlage(citation)
@@ -208,6 +242,8 @@ class CitesParser:
             return re.sub('%3A', ':', BWB + entity)
             
         else:
+            # The citation pattern wasn't recognized.
+            # Return False and set |encounteredUnknownPattern| to True.
             self.encounteredUnknownPattern = True
             print 'Unknown cited pattern: ' + citation
             if(self.logName):
@@ -228,6 +264,7 @@ class CitesParser:
     def handleHoofdstuk(self, ref):
         hoofdstuk = ref.split('hoofdstuk/')[1].split('/')[0]
         
+        # If there is a 'kop' in the URI, add it to the 'hoofdstuk'
         if ref.find('/kop/') > -1:
             kop = self.handleKop(ref)
             return '/hoofdstuk/' + hoofdstuk + kop
@@ -244,6 +281,10 @@ class CitesParser:
         return '/kop/' + kop
         
     def handleBijlage(self, ref):
+        """
+        A bijlage can contain 'artikel' or 'kop' instances. If so,
+        these are to be added to '/bijlage/'
+        """
         bijlage = ref.split('bijlage/')[1].split('/')[0]
         
         if ref.find('artikel') > -1:
@@ -275,10 +316,13 @@ class CitesParser:
         return '/circulaire.divisie/' + circDiv
     
     def handleCirculaire(self, ref):
+        # First try to match a 'circulaire-tekst' pattern, return it
+        # if it exists.
         circulaire = re.findall('/circulaire/[\w|\.]+/circulaire-tekst/[\w|\.]+', ref)
         if len(circulaire) > 0:
             return circulaire[0]
         
+        # Else match a standard 'circulaire' pattern.
         circulaire = re.findall('/circulaire/[\w|\.]+', ref)
         if len(circulaire) > 0:
             return circulaire[0]
@@ -286,10 +330,13 @@ class CitesParser:
             return False
     
     def handleRegeling(self, ref):
+        # First try to match a 'regeling-tekst' pattern, return it
+        # if it exists.
         regeling = re.findall('/regeling/[\w|\.]+/regeling-tekst/[\w|\.]+', ref)
         if len(regeling) > 0:
             return regeling[0]
         
+        # Else match a regular 'regeling' pattern.
         regeling = re.findall('/regeling/[\w|\.]+', ref)
         if len(regeling) > 0:
             return regeling[0]

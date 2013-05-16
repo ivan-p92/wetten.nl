@@ -116,6 +116,7 @@ class QueryNetwork:
         self.calcAndPickleBetweenness()
         self.calcAndPickleClosenessCentrality()
         self.calcAndPickleLoadCentrality()
+#         self.calcAndPickleEigenvector()
         print '\nCalculated and pickled all..'
     
     def loadMeasurements(self):
@@ -197,7 +198,16 @@ class QueryNetwork:
         return self.separateInternalFromExternal(allEntities, bwb)
     
     def separateInternalFromExternal(self, entities, bwb):
+        """
+        Given a list of entities and a BWB number, the internal entities
+        are separated from the external ones. Internal entities are entities
+        that belong to the given BWB.
         
+        @param entities: list of entity descriptions.
+        @param bwb: the BWB number to use for the separation.
+        @return: a dictionary with two lists, one for the internal and one
+            for the external entities.
+        """
         internal = []
         external = []
         for entity in entities:
