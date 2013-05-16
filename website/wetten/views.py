@@ -1,6 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from django.http import HttpResponse
 from django.shortcuts import render
 import urllib2
+import QueryNetwork as QN
+import CitesParser as CP
 
 def index(request):
     return HttpResponse("Gebruiksinfo")
@@ -14,3 +19,12 @@ def doc(request, document):
 
     context = {'metalexXML': metalexXML}
     return render(request, 'wetten/doc.html', context)
+
+def related(request):
+    parser = CP.CitesParser()
+    entity = request.GET.get('entity')
+    entityDescription = parser.entityDescription(entity)
+    if entityDescription:
+        return HttpResponse(entity + '\n\nDescription: ' + entityDescription)
+    else:
+        return HttpResponse(entity)

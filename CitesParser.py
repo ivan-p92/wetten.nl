@@ -19,8 +19,8 @@ class CitesParser:
     def __init__(self, inOrOut='none', makeNetwork=False, logName=False):
         
         # Provide the correct locations for the SPARQL result files.
-        self.citesInDir = '../../Cites_in/'
-        self.citesOutDir = '../../Cites_out/'
+        self.citesInDir = '/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Cites_in'
+        self.citesOutDir = '/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Cites_out'
         
         # Get lists of file names.
         self.citeInFiles = self.getCiteFiles(self.citesInDir)

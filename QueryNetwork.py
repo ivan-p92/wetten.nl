@@ -17,7 +17,7 @@ import re
 
 class QueryNetwork:
     
-    def __init__(self, graphPath='graph.pickle'):
+    def __init__(self, graphPath='/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/graph.pickle'):
         t = time.time()
         print 'Loading graph from file: "' + graphPath + '"...'
         self.G = pickle.load(open(graphPath, 'r'))

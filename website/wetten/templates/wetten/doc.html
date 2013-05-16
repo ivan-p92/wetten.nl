@@ -2,13 +2,26 @@
 <html>
 <head>
 <title>Test page</title>
-<link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/51311276/wetten/css.css" />
+<link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/51311276/wetten/doc.css" />
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 <script>
 $(document).click(function(e){
 	console.log('Click fired');
-	console.log($(e.target).attr("about"));
+	about = $(e.target).attr("about");
+	if (about) {
+		getRelated(about);
+	}
+	else {
+		console.log('Undefined');
+	}
 });
+
+function getRelated(entity) {
+	console.log('Getting related for: ' + entity);
+	$.get('/wetten/related/', {'entity': entity}, function(data) {
+  		$('#ajax_result').html(data);
+	});
+}
 </script>
 <style>
 	
@@ -27,6 +40,19 @@ Bla 2
 <br><br>
 
 {{ metalexXML|safe }}
+
+
+<div id="extra_info">
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris est nisl, pulvinar a tempus et, sollicitudin nec arcu. Donec tempor ornare felis, sed volutpat turpis pulvinar at. Sed ut convallis dolor. Cras semper, magna ut pretium adipiscing, enim ante porta dui, non pulvinar massa augue at est. Praesent nec felis odio, vitae lobortis erat. In lacus nibh, varius eget suscipit eu, aliquet nec libero. Sed eget sem tortor. Ut vel enim urna, vel iaculis enim. Suspendisse eu enim vitae ligula feugiat aliquet.
+
+Curabitur sit amet tellus mi, hendrerit ultricies sem. Fusce vitae augue sit amet nisi suscipit semper. Etiam ornare nisl non urna pretium semper. Cras volutpat tincidunt aliquet. Ut semper justo at arcu elementum nec rhoncus odio laoreet. Phasellus vitae egestas quam. Ut consectetur massa eget nisi viverra tempor tincidunt dui euismod.
+
+Cras non magna urna, quis vestibulum neque. Nunc suscipit cursus mauris, a fermentum dui consectetur non. Mauris in odio augue. Duis tristique mattis risus, vel malesuada tortor dapibus nec. Integer tristique molestie cursus. Proin sollicitudin, dolor non luctus accumsan, felis mi dignissim ligula, non vulputate tortor ante eget lacus. Pellentesque fermentum feugiat metus vel vestibulum. Nulla fringilla lobortis justo, id suscipit nisl vulputate nec. Integer nec purus in quam pellentesque sagittis id ut mi. Sed fermentum pretium interdum.
+
+	<div id="ajax_result">
+	This will hold ajax result.
+	</div>
+</div>
 
 </body>
 </html>

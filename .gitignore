@@ -6,3 +6,5 @@
 *.txt
 .project
 .pydevproject
+.metadata/
+.settings/org.eclipse.core.resources.prefs
