@@ -1,0 +1,32 @@
+<!Doctype html>
+<html>
+<head>
+<title>Test page</title>
+<link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/51311276/wetten/css.css" />
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<script>
+$(document).click(function(e){
+	console.log('Click fired');
+	console.log($(e.target).attr("about"));
+});
+</script>
+<style>
+	
+</style>
+</head>
+
+<body>
+
+<bla about="http://bladibla.com">
+Bladibla
+</bla>
+<br>
+<bla about="http://bla2.com">
+Bla 2
+</bla>
+<br><br>
+
+{{ metalexXML|safe }}
+
+</body>
+</html>
