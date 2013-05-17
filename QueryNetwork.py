@@ -126,12 +126,12 @@ class QueryNetwork:
         Note: doesn't perform existence check, will terminate if files don't exist
         """
         t = time.time()
-        self.degree = pickle.load(open('degree.pickle', 'r'))
-        self.degreeCentrality = pickle.load(open('degree_centrality.pickle', 'r'))
-        self.betweenness = pickle.load(open('betweenness_centrality.pickle', 'r'))
+        self.degree = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/degree.pickle', 'r'))
+        self.degreeCentrality = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/degree_centrality.pickle', 'r'))
+        self.betweenness = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/betweenness_centrality.pickle', 'r'))
 #         self.eigenvector = None
-        self.loadCentrality = pickle.load(open('load_centrality.pickle', 'r'))
-        self.closenessCentrality = pickle.load(open('closeness_centrality.pickle', 'r'))
+        self.loadCentrality = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/load_centrality.pickle', 'r'))
+        self.closenessCentrality = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/closeness_centrality.pickle', 'r'))
         print 'Loaded measurements in ' + str(int(time.time() - t)) + ' seconds'
         self.didLoadMeasurements = True
         
@@ -168,13 +168,16 @@ class QueryNetwork:
         if not directNeighbours:
             return False
         
+        """
+        # Use this to also look for indirect neighbours
         indirectNeighbours = []
         # Add indirect neighbours to the direct ones
         for neighbour in directNeighbours:
             indirectNeighbours += self.getNeighboursForEntity(neighbour)
         
         indirectNeighbours = list(set(indirectNeighbours))    
-        return [directNeighbours] + [indirectNeighbours]
+        return [directNeighbours] + [indirectNeighbours]"""
+        return [directNeighbours]
     
     def sortRelatedEntities(self, entity):
         """
@@ -188,13 +191,18 @@ class QueryNetwork:
             return []
         
         sortedDirect = self.sortEntities(relatedEntities[0])
+        
+        """
+        # Use this if indirect neighbours must be used
         if relatedEntities[1]:
             sortedIndirect = self.sortEntities(relatedEntities[1])
         else:
             sortedIndirect = []
         
         allEntities = sortedDirect + sortedIndirect
+        """
         
+        allEntities = sortedDirect
         return self.separateInternalFromExternal(allEntities, bwb)
     
     def separateInternalFromExternal(self, entities, bwb):
@@ -333,6 +341,14 @@ class QueryNetwork:
         # Sort them from large to small
         result.sort(key= lambda x: x[1], reverse=True)
         return result
+    
+    def entityIsInGraph(self, node):
+        """
+        Returns True if the node is in the graph and otherwise False.
+        @param node: entity description for node.
+        @return: True or False
+        """
+        return self.G.has_node(node)
 
 def main():
     
