@@ -8,6 +8,7 @@ from django.utils import simplejson as json
 import urllib2
 import QueryNetwork as QN
 import CitesParser as CP
+import SparqlHelper as sparql
 import re
 
 def index(request):
@@ -54,4 +55,15 @@ def related(request):
         return HttpResponse(json.dumps(data))
     else:
         return HttpResponse(json.dumps({'success': False}))
+    
+def relatedContent(request):
+    sparqlHelper = sparql.SparqlHelper()
+    entity = request.GET.get('entity')
+    
+    # Get latest expression
+    expression = sparqlHelper.getLatestDocForEntity(entity)
+    metalexData = urllib2.urlopen(expression)
+    metalexXML = metalexData.read()
+    
+    return HttpResponse(metalexXML)
         

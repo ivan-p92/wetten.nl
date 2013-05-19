@@ -38,6 +38,7 @@ class CitesParser:
         self.makeNetwork = makeNetwork
         if(makeNetwork):
             self.G = nx.Graph()
+            self.workDictionary = {}
         
         # Parse the citations for incoming or outgoing or both or none
         if inOrOut == 'both':
@@ -52,11 +53,16 @@ class CitesParser:
         
         # Save network to disk if a network was made    
         if(makeNetwork):
-            fileName = 'Graph ' + time.ctime(time.time())
+            t = time.ctime(time.time())
+            fileName = 'Graph ' + t
             nx.write_gml(self.G, fileName + '.gml')
             pickle.dump(self.G, open(fileName + '.pickle', 'w'))
             print '\nDumped graph at: "' + fileName + '", (.pickle and .gml)'
-    
+            
+            fileName = "Work URIs " + t + '.pickle'
+            pickle.dump(self.workDictionary, open(fileName, 'w'))
+            print '\nDumped work URIs at: "' + fileName + '"'
+            
     def getCiteFiles(self, dirPath):
         '''
         Retrieves all file names for xml files that start with BWB at
@@ -178,9 +184,9 @@ class CitesParser:
             citingWork = self.workLevelURI(citing, citingEntity)
             citedWork = self.workLevelURI(cited, citedEntity)
             
-            # Add nodes with work level as attribute "work"
-            self.G.add_node(citingEntity, work=citingWork)
-            self.G.add_node(citedEntity, work=citedWork)
+            # Add work URI's to dictionary
+            self.workDictionary[citingEntity] = citingWork
+            self.workDictionary[citedEntity] = citedWork
             
             # Add the edge
             self.G.add_edge(citingEntity, citedEntity)    

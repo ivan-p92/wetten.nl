@@ -13,7 +13,7 @@
 
 <body>
 
-<div id="root_container">
+<div id="root_container" title="Klik om nuttige bronnen bij dit document/artikel te vinden">
 {{ metalexXML|safe }}
 </div>
 
@@ -25,7 +25,7 @@
 
 			{% if entities %}
 				{% for entity in entities %}
-					<div title="Klik voor details" class="result">{{ entity }}</div>
+					<div title="Klik om te lezen" class="result" entity="{{ entity }}">{{ entity }}</div>
 				{% endfor %}
 			{% else %}
 				<p>Geen bronnen in citatienetwerk voor opgegeven BWB nummer.</p>
@@ -34,12 +34,12 @@
 
 		<div class="info_title">Belangrijke interne bronnen voor selectie:</div>
 			<div id="internal">
-			Hier komt het AJAX resultaat.
+			Klik in ergens in het geraadpleegde document om belangrijke documenten op te halen.
 			</div>
 
 		<div class="info_title">Belangrijke externe bronnen voor selectie:</div>
 			<div id="external">
-			Hier komen externe bronnen.
+			Klik in ergens in het geraadpleegde document om belangrijke documenten op te halen.
 			</div>
 	</div>
 </div>

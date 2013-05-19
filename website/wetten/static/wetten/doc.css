@@ -44,7 +44,6 @@ body {
     background-color: #EDEDED;
     border-radius: 5px;
     font-family: verdana;
-    font-size: 80%;
 }
 
 #close_details:hover {
@@ -78,6 +77,10 @@ body {
     color: #EDEDED;
     cursor: pointer;
     font-weight: bold;
+}
+
+#root_container root:hover {
+    cursor: pointer;
 }
 
 #root_container {

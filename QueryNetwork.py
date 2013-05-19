@@ -10,6 +10,8 @@ to perform various analyses, mostly using the networkx package.
 # from xml.dom import minidom as mini
 # import os
 # import re
+from xml.dom import minidom as mini
+import urllib2
 import networkx as nx
 import time
 import pickle
@@ -349,7 +351,7 @@ class QueryNetwork:
         @return: True or False
         """
         return self.G.has_node(node)
-
+        
 def main():
     
     queryNetwork = QueryNetwork('graph.pickle')
