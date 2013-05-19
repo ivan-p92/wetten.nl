@@ -19,8 +19,8 @@ class CitesParser:
     def __init__(self, inOrOut='none', makeNetwork=False, logName=False):
         
         # Provide the correct locations for the SPARQL result files.
-        self.citesInDir = '/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Cites_in'
-        self.citesOutDir = '/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Cites_out'
+        self.citesInDir = '/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Cites_in/'
+        self.citesOutDir = '/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Cites_out/'
         
         # Get lists of file names.
         self.citeInFiles = self.getCiteFiles(self.citesInDir)
@@ -174,8 +174,43 @@ class CitesParser:
         # Note: parallel edges aren't allowed, so if an edge already exists, it
         # isn't added again.
         if(self.makeNetwork and citingEntity and citedEntity):
+            # Get work level URI's
+            citingWork = self.workLevelURI(citing, citingEntity)
+            citedWork = self.workLevelURI(cited, citedEntity)
+            
+            # Add nodes with work level as attribute "work"
+            self.G.add_node(citingEntity, work=citingWork)
+            self.G.add_node(citedEntity, work=citedWork)
+            
+            # Add the edge
             self.G.add_edge(citingEntity, citedEntity)    
-
+    
+    def workLevelURI(self, uri, entityDescription):
+        """
+        Given a entityDescription, a shorter work-level URI is returned
+        
+        @param entityDescription: the entityDescription
+        @param uri: the original full expression URI
+        @return: string with higher level work URI
+        """
+        # First get last two parts of entity
+        # Original entity, i.e. entity description without bwb might consist of
+        # more than two parts (like "hoofdstuk/kop/2"), but since we are matching
+        # against the original URI, the last two parts are enough to get everything
+        # except the part after the entity (containing uninteresting elements like
+        # al, li, etc.).
+        entity = re.findall('/[\w|\.|:]+/[\w|\.|:]+$', entityDescription)
+        # If there is a match, take first object
+        if entity:
+            entity = entity[0]
+        # Else we are dealing with a BWB only
+        else:
+            entity = ''
+        
+        # Take everything from original expression URI, except parts after entity description
+        workURI = re.findall('^.*' + entity, uri)
+        return workURI
+    
     def entityDescription(self, citation):
         """
         Given a URI, creates and returns a shorter description of the entity,
