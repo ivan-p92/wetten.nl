@@ -1,3 +1,18 @@
-{% for entity in entities %}
-    <div title="Klik om te lezen" class="result" entity="{{ entity }}">{{ entity }}</div>
-{% endfor %}
+{% load wetten_extras %}
+
+{% if bwb_titles %}
+    {% for entity in entities %}
+        <div title="Klik om te lezen" class="result" entity="{{ entity }}">
+            <div class="result_title">
+                {{ bwb_titles|get_title:entity }}
+            </div>
+            {{ descriptions|get:entity }}
+        </div>
+    {% endfor %}
+{% else %}
+    {% for entity in entities %}
+        <div title="Klik om te lezen" class="result" entity="{{ entity }}">
+            {{ descriptions|get:entity }}
+        </div>
+    {% endfor %}
+{% endif %}

@@ -24,6 +24,12 @@ body {
     margin-left: 5px;
 }
 
+.result_title {
+    font-size: 110%;
+    font-style: italic;
+    margin-bottom: 5px;
+}
+
 #extra_info {
     padding: 5px;
 }
@@ -77,13 +83,13 @@ body {
     margin-bottom: 5px;
     color: black;
     text-decoration: none;
+    min-height: 20px;
 }
 
 .result:hover, .selected_result, .bwb_link:hover {
     background-color: #9C9A9A;
     color: #EDEDED;
     cursor: pointer;
-    font-weight: bold;
 }
 
 #root_container root:hover {

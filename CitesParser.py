@@ -13,6 +13,7 @@ import re
 import networkx as nx
 import time
 import pickle
+import SparqlHelper
 
 class CitesParser:
     
@@ -39,6 +40,9 @@ class CitesParser:
         if(makeNetwork):
             self.G = nx.Graph()
             self.workDictionary = {}
+            self.humanDescription = {}
+            self.bwbTitles = {}
+            self.sparql = SparqlHelper.SparqlHelper()
         
         # Parse the citations for incoming or outgoing or both or none
         if inOrOut == 'both':
@@ -56,12 +60,21 @@ class CitesParser:
             t = time.ctime(time.time())
             fileName = 'Graph ' + t
             nx.write_gml(self.G, fileName + '.gml')
+            
             pickle.dump(self.G, open(fileName + '.pickle', 'w'))
             print '\nDumped graph at: "' + fileName + '", (.pickle and .gml)'
             
             fileName = "Work URIs " + t + '.pickle'
             pickle.dump(self.workDictionary, open(fileName, 'w'))
             print '\nDumped work URIs at: "' + fileName + '"'
+            
+            fileName = "bwb_titles " + t + '.pickle'
+            pickle.dump(self.bwbTitles, open(fileName, 'w'))
+            print '\nDumped BWB titles at: "' + fileName + '"'
+            
+            fileName = "human_descriptions " + t + '.pickle'
+            pickle.dump(self.humanDescription, open(fileName, 'w'))
+            print '\nDumped human entity descriptions at: "' + fileName + '"'
             
     def getCiteFiles(self, dirPath):
         '''
@@ -167,29 +180,64 @@ class CitesParser:
             citing = bindings[0].getElementsByTagName('uri')[0].firstChild.nodeValue
             cited = bindings[1].getElementsByTagName('uri')[0].firstChild.nodeValue
         
+        # Replace occurences of "%3A" by regular colon characters
+        citing = re.sub('%3A', ':', citing)
+        cited = re.sub('%3A', ':', cited)
+        
         if(self.logName):
             self.log += '\n\nCiting unit: ' + citing
             self.log += '\nCited unit: ' + cited
-            
-        # Get entity description for citing element and for cited one
-        citingEntity = self.entityDescription(citing)
-        citedEntity = self.entityDescription(cited)
+        
+        if not self.makeNetwork:    
+            # Get entity description for citing element and for cited one
+            citingEntity = self.entityDescription(citing)
+            citedEntity = self.entityDescription(cited)
+        else:
+            # Retrieve not only description, but also BWB and entity separately
+            citingData = self.entityDescription(citing, alsoBWBAndEntity = True)
+            citedData = self.entityDescription(cited, alsoBWBAndEntity = True)
         
         # If a network should be created and both URI's were parsed successfully,
         # add an edge.
         # Note: parallel edges aren't allowed, so if an edge already exists, it
         # isn't added again.
-        if(self.makeNetwork and citingEntity and citedEntity):
+        if(self.makeNetwork and citingData and citedData):
+            
+            """
+            Adding the work URI, the bwb title
+            """
             # Get work level URI's
-            citingWork = self.workLevelURI(citing, citingEntity)
-            citedWork = self.workLevelURI(cited, citedEntity)
+            citingWork = self.workLevelURI(citing, citingData[0])
+            citedWork = self.workLevelURI(cited, citedData[0])
             
             # Add work URI's to dictionary
-            self.workDictionary[citingEntity] = citingWork
-            self.workDictionary[citedEntity] = citedWork
+            self.workDictionary[citingData[0]] = citingWork
+            self.workDictionary[citedData[0]] = citedWork
+            
+            # If the title for the bwb's hasn't been saved yet, get it and add it
+            # to the dictionary of titles
+            if not citingData[1] in self.bwbTitles:
+                titleAndExpression = self.sparql.getLatestTitleAndExpressionForBWB(citingData[1])
+                if titleAndExpression:
+                    self.bwbTitles[citingData[1]] = titleAndExpression[1]
+                else:
+                    self.bwbTitles[citingData[1]] = citingData[1]
+
+            if not citedData[1] in self.bwbTitles:
+                titleAndExpression = self.sparql.getLatestTitleAndExpressionForBWB(citedData[1])
+                if titleAndExpression:
+                    self.bwbTitles[citedData[1]] = titleAndExpression[1]
+                else:
+                    self.bwbTitles[citedData[1]] = citedData[1]
+            
+            # Add human friendly entity to dictionary if it doesn't exist yet
+            if not citingData[0] in self.humanDescription:
+                self.humanDescription[citingData[0]] = self.humanDescriptionForEntity(citingData[2])
+            if not citedData[0] in self.humanDescription:
+                self.humanDescription[citedData[0]] = self.humanDescriptionForEntity(citedData[2])
             
             # Add the edge
-            self.G.add_edge(citingEntity, citedEntity)    
+            self.G.add_edge(citingData[0], citedData[0])    
     
     def workLevelURI(self, uri, entityDescription):
         """
@@ -217,17 +265,60 @@ class CitesParser:
         workURI = re.findall('^.*' + entity, uri)
         return workURI
     
-    def entityDescription(self, citation):
+    def entityDescription(self, citation, alsoBWBAndEntity = False):
         """
         Given a URI, creates and returns a shorter description of the entity,
         ready for use as node name for the network.
         
         @param citation: the citation URI (string)
         @return: the new, shorter description (string), or False if parsing
-            wasn't successful.
+            wasn't successful. If alsoBWBAndEntity is True, then a list of the
+            format [entityDescription, BWB, entity] is returned.
         """
         
         # First, retrieve the BWB number
+        BWB = self.getBWBForCitation(citation)
+        if not BWB:
+            return False
+          
+        entity = self.getEntityForCitation(citation)
+            
+        if BWB and (entity or entity == ''):
+            if(self.logName):
+                self.log += '\nCited BWB/entity: ' + BWB + entity
+            if alsoBWBAndEntity:
+                # Returns not only the description, but also the BWB and
+                # the entity separately (in list)
+                return [BWB + entity, BWB, entity]
+            else:
+                # Just return the BWB/entity description
+                return BWB + entity
+            
+        else:
+            # The citation pattern wasn't recognized.
+            # Return False and set |encounteredUnknownPattern| to True.
+            self.encounteredUnknownPattern = True
+            print 'Unknown cited pattern: ' + citation
+            if(self.logName):
+                self.log += '\nUnknown cited pattern'
+                
+            return False
+    
+    def humanDescriptionForEntity(self, entity):
+        """
+        Returns entity with white spaces instead of slashes.
+        
+        @param entity: the entity
+        """
+        return re.sub('/', ' ', entity)
+    
+    def getBWBForCitation(self, citation):
+        """
+        Returns the bwb number for given reference.
+        
+        @param citation: the citation URI.
+        @return: the bwb number (string) or false if not found.
+        """
         BWB = re.findall('BWBR\d{7}', citation)
         if BWB.__len__() > 0:
             # If the BWB was found, take it
@@ -240,7 +331,17 @@ class CitesParser:
             # Unknown BWB pattern
             print '\nCritical: cited has no BWB:\n' + citation
             return False
-          
+        
+        return BWB
+    
+    def getEntityForCitation(self, citation):
+        """
+        Finds and returns the enity part of the shorter description
+        of "getEntityDescription".
+        
+        @param citation: the citation
+        @return: the entity (False if none matched)
+        """
         entity = False
         # Find the first match and handle accordingly.
         # The order is very important, putting a higher level
@@ -275,23 +376,9 @@ class CitesParser:
             entity = self.handleDeel(citation)
         elif citation.find('/wijzig-artikel/') > -1:
             entity = self.handleWijzigArtikel(citation)
-            
-        if BWB and (entity or entity == ''):
-            if(self.logName):
-                self.log += '\nCited BWB/entity: ' + BWB + entity
-            # Return BWB/entity and replace possible occurrences of %3A with ':'
-            return re.sub('%3A', ':', BWB + entity)
-            
-        else:
-            # The citation pattern wasn't recognized.
-            # Return False and set |encounteredUnknownPattern| to True.
-            self.encounteredUnknownPattern = True
-            print 'Unknown cited pattern: ' + citation
-            if(self.logName):
-                self.log += '\nUnknown cited pattern'
-                
-            return False
-
+        
+        return entity
+    
     def handleArtikel(self, ref):
         artikel = ref.split('artikel/')[1].split('/')[0]
         

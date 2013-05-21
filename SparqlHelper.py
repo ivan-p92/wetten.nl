@@ -56,7 +56,10 @@ class SparqlHelper:
         # Read xml and get results
         xml = mini.parseString(data.read())
         results = xml.getElementsByTagName('result')
-        print 'Number of expressions: ' + str(results.length)
+#         print 'Number of expressions: ' + str(results.length)
+        # If no expressions, return False
+        if not results.length:
+            return False
         
         # Extract the expression URI's from the results and add each to the
         # list of all expressions for this work
@@ -74,13 +77,17 @@ class SparqlHelper:
         for /wetten/doc/.
         
         @param bwb: the bwb number (string).
-        @return: list of strings: bwb number, title and latest expression.
+        @return: list of strings: bwb number, title and latest expression. False if no
+            expressions have been found.
         """
-        if not self.workDictionary:
-            self.loadWorkDictionary()
             
-        work = self.workDictionary[bwb][0]
-        latestExpression = self.getExpressionsForWork(work)[-1]
+        work = 'http://doc.metalex.eu/id/' + bwb
+        expressions = self.getExpressionsForWork(work)
+        # If there are no expressions, return False
+        if not expressions:
+            return False
+        
+        latestExpression = expressions[-1]
         title = self.getTitleForExpression(latestExpression)
         
         # Convert the metalex expression to /wetten/doc/ expression
@@ -109,7 +116,7 @@ class SparqlHelper:
         # Extract the title from the binding
         binding = result.getElementsByTagName('binding')[0]
         title = binding.getElementsByTagName('literal')[0].firstChild.nodeValue
-        print 'title: ' + title
+#         print 'title: ' + title
         return title
         
 def main():
