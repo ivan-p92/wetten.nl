@@ -17,8 +17,8 @@ body {
 }
 
 .info_title {
-    color: #EDEDED;
-    font-weight: bold;
+    color: white;
+    font-weight: normal;
     font-style: italic;
     margin-bottom: 5px;
     margin-left: 5px;
@@ -32,11 +32,11 @@ body {
     display: block;
     margin-left: 20px;
     width: 700px;
-    height: 380px;
+    height: 370px;
     overflow-x: hidden;
     overflow-y: auto;
     position: fixed;
-    top: 430px;
+    top: 445px;
     left: 0px;
     padding: 5px;
     padding-left: 1em;
@@ -65,14 +65,21 @@ body {
     margin-bottom: 10px;
 }
 
-.result, .selected_result {
+#bwb_index {
+    position: fixed;
+    left: 20px;
+}
+
+.result, .selected_result, .bwb_link {
     background-color: #EDEDED;
     border-radius: 5px;
     padding: 5px;
     margin-bottom: 5px;
+    color: black;
+    text-decoration: none;
 }
 
-.result:hover, .selected_result {
+.result:hover, .selected_result, .bwb_link:hover {
     background-color: #9C9A9A;
     color: #EDEDED;
     cursor: pointer;
@@ -87,7 +94,7 @@ body {
     display: block;
     margin-left: 20px;
     width: 700px;
-    height: 810px;
+    height: 775px;
     overflow-x: hidden;
     overflow-y: auto;
     padding: 5px;
@@ -97,6 +104,7 @@ body {
     border-radius: 5px;
     position: fixed;
     left: 0px;
+    top: 40px;
 }
 
 source_root, root { 

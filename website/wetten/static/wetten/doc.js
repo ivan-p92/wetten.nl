@@ -17,10 +17,6 @@ $('root').bind('click', function(e){
 	}
 });
 
-$('#close_details').bind('click', function(){
-	hideDetails();
-});
-
 // Bind elements with class "result".
 bindResults();
 
@@ -33,6 +29,14 @@ $(window).on('resize', function(){
 setWidth()
 
 });
+
+
+function bindCloseDetails() {
+    $('#close_details').bind('click', function(){
+	    hideDetails();
+    });
+
+}
 
 // Update layout of selected result and show details (metalex data) for that result.
 function bindResults() {
@@ -104,7 +108,7 @@ function getRelated(entity) {
 function showDetails(entity) {
     // Show the view and change the metalex container's height.
 	$('#result_details').show();
-	$('#root_container').height(400);
+	$('#root_container').height(380);
 	
 	// Show that data is being loaded.
 	$('#result_details').html('<b style="color:green">Gegevens laden...</b>');
@@ -114,11 +118,13 @@ function showDetails(entity) {
   		$('#result_details').html(data);
   		// Scroll to top.
   		$('#result_details').scrollTop(0);
+	    bindCloseDetails();
 	});
+	
 }
 
 // Hides the details view and restores the original metalex view to full height
 function hideDetails() {
 	$('#result_details').hide();
-	$('#root_container').height(810);
+	$('#root_container').height(775);
 }

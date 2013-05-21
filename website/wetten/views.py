@@ -15,6 +15,18 @@ def index(request):
     return HttpResponse("Gebruiksinfo")
 
 def doc(request, document):
+    sparqlHelper = sparql.SparqlHelper()
+    # List of BWB's in the subset
+    bwbDocuments = ['BWBR0002226', 
+                    'BWBR0002227', 
+                    'BWBR0002320', 
+                    'BWBR0005537', 
+                    'BWBR0011353', 
+                    'BWBR0027018']
+    
+    test = []
+    for bwbDocument in bwbDocuments:
+        test.append(sparqlHelper.getLatestTitleAndExpressionForBWB(bwbDocument))
     
     metalexData = urllib2.urlopen('http://doc.metalex.eu/doc/' + document)
     metalexXML = metalexData.read()
@@ -23,7 +35,7 @@ def doc(request, document):
     query = QN.QueryNetwork()
     entities = query.sortEntitiesForBWB(bwb)
     
-    context = {'metalexXML': metalexXML, 'entities': entities}
+    context = {'metalexXML': metalexXML, 'entities': entities, 'test': test}
     return render(request, 'wetten/doc.html', context)
 
 def related(request):
@@ -65,5 +77,6 @@ def relatedContent(request):
     metalexData = urllib2.urlopen(expression)
     metalexXML = metalexData.read()
     
-    return HttpResponse(metalexXML)
+    closeLink = '<div id="close_details">Sluit dit venster</div>\n'
+    return HttpResponse(closeLink + metalexXML)
         

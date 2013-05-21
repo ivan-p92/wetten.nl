@@ -67,6 +67,50 @@ class SparqlHelper:
             expressions.append(expression)
         
         return expressions
+    
+    def getLatestTitleAndExpressionForBWB(self, bwb):
+        """
+        Returns a list with the original bwb number, its title and its latest expression
+        for /wetten/doc/.
+        
+        @param bwb: the bwb number (string).
+        @return: list of strings: bwb number, title and latest expression.
+        """
+        if not self.workDictionary:
+            self.loadWorkDictionary()
+            
+        work = self.workDictionary[bwb][0]
+        latestExpression = self.getExpressionsForWork(work)[-1]
+        title = self.getTitleForExpression(latestExpression)
+        
+        # Convert the metalex expression to /wetten/doc/ expression
+        latestExpression = re.sub('^.*eu/id/', '/wetten/doc/', latestExpression) + '/data.xml'
+        
+        return [bwb, title, latestExpression]
+        
+    def getTitleForExpression(self, expression):
+        """
+        Returns title for given expression by querying the sparql endpoint.
+        
+        @param expression: the expression
+        """
+        # Create sparql query
+        query = 'SELECT DISTINCT ?title WHERE {<' + expression + '>' + \
+            '<http://purl.org/dc/terms/title> ?title } LIMIT 1'
+#         print 'query: ' + query
+        
+        # Pass query to sparql endpoint (through regular post request)
+        data = urllib2.urlopen('http://doc.metalex.eu:8000/sparql/', 'query=' + query + '&soft-limit=-1')
+        
+        # Read xml and get result
+        xml = mini.parseString(data.read())
+        result = xml.getElementsByTagName('result')[0]
+        
+        # Extract the title from the binding
+        binding = result.getElementsByTagName('binding')[0]
+        title = binding.getElementsByTagName('literal')[0].firstChild.nodeValue
+        print 'title: ' + title
+        return title
         
 def main():
     pass

@@ -13,6 +13,12 @@
 
 <body>
 
+<div id="bwb_index">
+	{% for bwb in test %}
+		<a href="{{ bwb.2 }}" title="{{ bwb.1 }}" class="bwb_link">{{ bwb.0 }}</a>
+	{% endfor %}
+</div>
+
 <div id="root_container" title="Klik om nuttige bronnen bij dit document/artikel te vinden">
 {{ metalexXML|safe }}
 </div>
