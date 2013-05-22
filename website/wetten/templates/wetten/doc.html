@@ -5,7 +5,9 @@
 <head>
 <title>Test page</title>
 <link rel="stylesheet" href="{% static 'wetten/doc.css' %}" />
+<link rel="stylesheet" href="{% static 'wetten/superfish.css' %}" />
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<script src="{% static 'wetten/superfish.js' %}"></script>
 <script src="{% static 'wetten/doc.js' %}"></script>
 <style>
 	
@@ -14,10 +16,16 @@
 
 <body>
 
-<div id="bwb_index">
-	{% for bwb in bwb_links %}
-		<a href="{{ bwb.2 }}" title="{{ bwb.1 }}" class="bwb_link">{{ bwb.0 }}</a>
-	{% endfor %}
+<div id="menubar_container">
+	<ul class="sf-menu" id="menubar">
+		<li><a href="#">Belasting subset</a>
+			<ul>
+				{% for bwb in bwb_links %}
+				<li><a href="{{ bwb.2 }}" title="{{ bwb.0 }}">{{ bwb.1 }}</a></li>
+				{% endfor %}
+			</ul>
+		</li>
+	</ul>
 </div>
 
 <div id="root_container" title="Klik om nuttige bronnen bij dit document/artikel te vinden">

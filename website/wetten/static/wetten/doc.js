@@ -17,6 +17,12 @@ $('root').bind('click', function(e){
 	}
 });
 
+// Superfish for dropdown menu
+$('#menubar').superfish({
+	//add options here if required
+});
+
+
 // Bind references in metalex data
 bindRefs();
 

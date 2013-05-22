@@ -71,7 +71,7 @@ body {
     margin-bottom: 10px;
 }
 
-#bwb_index {
+#menubar_container{
     position: fixed;
     left: 20px;
 }
@@ -110,7 +110,7 @@ body {
     border-radius: 4px;
     position: fixed;
     left: 0px;
-    top: 40px;
+    top: 50px;
 }
 
 source_root, root { 
