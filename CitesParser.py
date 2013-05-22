@@ -243,8 +243,8 @@ class CitesParser:
         """
         Given a entityDescription, a shorter work-level URI is returned
         
-        @param entityDescription: the entityDescription
         @param uri: the original full expression URI
+        @param entityDescription: the entityDescription
         @return: string with higher level work URI
         """
         # First get last two parts of entity

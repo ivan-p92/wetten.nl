@@ -91,4 +91,16 @@ def relatedContent(request):
     
     closeLink = '<div id="close_details">Sluit dit venster</div>\n'
     return HttpResponse(closeLink + metalexXML)
+
+def reference(request):
+    sparqlHelper = sparql.SparqlHelper()
+    about = request.GET.get('about')
+    idExpression = sparqlHelper.getLatestCitedExpressionForReference(about)
+    citedExpression = sparqlHelper.getDocForId(idExpression)
+    metalexData = urllib2.urlopen(citedExpression)
+    metalexXML = metalexData.read()
+    
+    closeLink = '<div id="close_details">Sluit dit venster</div>\n'
+    return HttpResponse(closeLink + metalexXML)
+    
         

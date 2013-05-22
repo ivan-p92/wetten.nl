@@ -44,6 +44,9 @@ class SparqlHelper:
         doc = re.sub('eu/id/', 'eu/doc/', expression) + '/data.xml'
         
         return doc       
+    
+    def getLatestExpressionForWork(self, work):
+        return self.getExpressionsForWork(work)[-1]
         
     def getExpressionsForWork(self, work):
         # Create sparql query
@@ -119,6 +122,45 @@ class SparqlHelper:
 #         print 'title: ' + title
         return title
         
+    def getDocForId(self, idExpression):
+        """
+        Given an expression of the form doc.metalex.eu/id/<expression>,
+        returns doc.metalex.eu/doc/<expression>/data.xml
+        
+        @param idExpression: regular metalex expression URI
+        @return: transformed URI, link to xml data for expression
+        """
+        return re.sub('/id/', '/doc/', idExpression) + '/data.xml'
+    
+    def getCitedWorkForReference(self, reference):
+        """
+        Given a reference (both intref and extref), fetches first matching
+        work that is cited by the reference.
+        
+        @param reference: the reference (the "about" value of the inline element)
+        @return: the work level URI of the cited source
+        """
+        # Create the query
+        query = 'SELECT ?cited WHERE {\
+                 ?e <http://www.w3.org/2002/07/owl#sameAs> <' + reference + '>. \
+                 ?e <http://www.metalex.eu/schema/1.0#cites> ?cited } LIMIT 1'
+                 
+        # Pass query to sparql endpoint (through regular post request)
+        data = urllib2.urlopen('http://doc.metalex.eu:8000/sparql/', 'query=' + query + '&soft-limit=-1')
+        
+        # Read xml and get result
+        xml = mini.parseString(data.read())
+        result = xml.getElementsByTagName('result')[0]
+        
+        # Extract the title from the binding
+        binding = result.getElementsByTagName('binding')[0]
+        citedWork = binding.getElementsByTagName('uri')[0].firstChild.nodeValue
+        return citedWork
+    
+    def getLatestCitedExpressionForReference(self, reference):
+        work = self.getCitedWorkForReference(reference)
+        return self.getLatestExpressionForWork(work)
+    
 def main():
     pass
     

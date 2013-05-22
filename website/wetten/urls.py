@@ -7,4 +7,5 @@ urlpatterns = patterns('',
     url(r'^doc/(?P<document>.*)$', views.doc, name='doc'),
     url(r'^related/$', views.related, name='related'),
     url(r'^relatedContent/$', views.relatedContent, name='relatedContent'),
+    url(r'^reference/$', views.reference, name='reference'),
 )

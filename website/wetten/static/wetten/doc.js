@@ -17,6 +17,9 @@ $('root').bind('click', function(e){
 	}
 });
 
+// Bind references in metalex data
+bindRefs();
+
 // Bind elements with class "result".
 bindResults();
 
@@ -36,6 +39,22 @@ function bindCloseDetails() {
 	    hideDetails();
     });
 
+}
+
+// Bind intrefs and extrefs
+function bindRefs() {
+    $('.intref, .extref').bind('click', function(e) {
+        // Don't register as click in parent elements
+        e.stopPropagation();
+        
+        var about = $(e.target).attr('about');
+        if (about) {
+            loadReferenceContent(about);
+        }
+        else {
+            alert('Deze link werkt niet');
+        }
+    });
 }
 
 // Update layout of selected result and show details (metalex data) for that result.
@@ -125,6 +144,25 @@ function getRelated(entity) {
 	});
 }
 
+// Loads data for given reference
+function loadReferenceContent(about) {
+    // Show the view and change the metalex container's height.
+    $('#result_details').show();
+    $('#root_container').height(380);
+
+    // Show that data is being loaded.
+    $('#result_details').html('<b style="color:green">Gegevens laden...</b>');
+
+    // Perform ajax get request.
+    $.get('/wetten/reference/', {'about': about}, function(data) {
+        $('#result_details').html(data);
+        // Scroll to top.
+        $('#result_details').scrollTop(0);
+        bindCloseDetails();
+        bindRefs();
+    });
+}
+
 // Loads and shows the content of the selected result.
 function showDetails(entity) {
     // Show the view and change the metalex container's height.
@@ -140,6 +178,7 @@ function showDetails(entity) {
   		// Scroll to top.
   		$('#result_details').scrollTop(0);
 	    bindCloseDetails();
+	    bindRefs();
 	});
 	
 }
