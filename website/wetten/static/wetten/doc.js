@@ -41,6 +41,7 @@ function bindCloseDetails() {
 // Update layout of selected result and show details (metalex data) for that result.
 function bindResults() {
     $('.result').bind('click', function(e){
+        console.log('.result action fired');
         // Get the clicked result element.
         var target = $(e.target);
         
@@ -54,6 +55,26 @@ function bindResults() {
         
         // Show (load) the details for the entity to which the selected result belongs.
         showDetails(target.attr('entity'));
+    });
+    
+    // Bind result title. If title clicked, act like parent result is clicked
+    $('.result_title').bind('click', function(e){
+        e.stopPropagation();
+        console.log('.result_title action fired');
+        // Get the clicked result_title element.
+        var target = $(e.target);
+        var result = target.parent();
+        
+        // Change the style of the previously selected result back to normal.
+        $('.selected_result').addClass('result');
+        $('.selected_result').removeClass('selected_result');
+        
+        // Change the style of the new element to that of a selected one.
+        result.removeClass('result');
+        result.addClass('selected_result');
+        
+        // Show (load) the details for the entity to which the selected result belongs.
+        showDetails(result.attr('entity'));
     });
 }
 

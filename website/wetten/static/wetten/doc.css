@@ -88,7 +88,7 @@ body {
 
 .result:hover, .selected_result, .bwb_link:hover {
     background-color: #9C9A9A;
-    color: #EDEDED;
+    color: white;
     cursor: pointer;
 }
 
