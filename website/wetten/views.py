@@ -16,6 +16,7 @@ def index(request):
     return HttpResponse("Gebruiksinfo")
 
 def doc(request, document):
+    citesParser = CP.CitesParser();
     sparqlHelper = sparql.SparqlHelper()
     humanDescriptions = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/human_descriptions.pickle', 'r'))
     # List of BWB's in the subset
@@ -25,6 +26,7 @@ def doc(request, document):
                     'BWBR0005537', 
                     'BWBR0011353', 
                     'BWBR0027018']
+    pageTitle = citesParser.entityDescription(document)
     
     bwb_links = []
     for bwbDocument in bwbDocuments:
@@ -40,7 +42,8 @@ def doc(request, document):
     context = {'metalexXML': metalexXML, 
                'entities': entities, 
                'bwb_links': bwb_links, 
-               'descriptions': humanDescriptions}
+               'descriptions': humanDescriptions,
+               'title': pageTitle}
     return render(request, 'wetten/doc.html', context)
 
 def related(request):
@@ -103,4 +106,40 @@ def reference(request):
     closeLink = '<div id="close_details">Sluit dit venster</div>\n'
     return HttpResponse(closeLink + metalexXML)
     
+def timetravelArticle(request):
+    parser = CP.CitesParser()
+    about = request.GET.get('about')
+    
+    # Get referer to extract its date later on
+    referer = request.META.get('HTTP_REFERER') 
+    
+    entityDescription = parser.entityDescription(about)
+    if entityDescription:
+        work = parser.workLevelURI(about, entityDescription)[0]
+        sparqlHelper = sparql.SparqlHelper()
+        expressions = sparqlHelper.getExpressionsForWork(work)
+        docExpressions = sparqlHelper.getDocsForIds(expressions)
+        dates = sparqlHelper.datesForExpressions(docExpressions)
         
+        # The date for the currently viewed document
+        currentDateTuple = sparqlHelper.dateForExpression(referer)
+        
+        # Render the results.
+        template = loader.get_template('wetten/timetravelArticle.html')
+        context = Context({'expressions': dates['expressions'],
+                           'dates': dates['dates'],
+                           'current': currentDateTuple[1]})
+        versions = template.render(context)
+        
+        return HttpResponse(versions)
+    else:
+        return HttpResponse('Er is een fout opgetreden.')
+
+def metalexContent(request):
+    expression = request.GET.get('expression')
+    
+    metalexData = urllib2.urlopen(expression)
+    metalexXML = metalexData.read()
+    
+    closeLink = '<div id="close_details">Sluit dit venster</div>\n'
+    return HttpResponse(closeLink + metalexXML)

@@ -8,4 +8,6 @@ urlpatterns = patterns('',
     url(r'^related/$', views.related, name='related'),
     url(r'^relatedContent/$', views.relatedContent, name='relatedContent'),
     url(r'^reference/$', views.reference, name='reference'),
+    url(r'^timetravelArticle/$', views.timetravelArticle, name='timetravelArticle'),
+    url(r'^metalexContent/$', views.metalexContent, name='metalexContent'),
 )

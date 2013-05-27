@@ -11,7 +11,7 @@ body {
     min-width: 300px;
     position:  fixed;
     left: 800px;
-    top: 5px;
+    top: 23px;
     font-family: verdana;
     font-size: 80%;
 }
@@ -22,6 +22,7 @@ body {
     font-style: italic;
     margin-bottom: 5px;
     margin-left: 5px;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
 }
 
 .result_title {
@@ -48,8 +49,9 @@ body {
     padding-left: 1em;
     padding-right: 1em; 
     background-color: #FFF2C7;
-    border-radius: 4px;
+    border-radius: 1px;
     font-family: verdana;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 #close_details:hover, .intref:hover, .extref:hover {
@@ -61,14 +63,15 @@ body {
     color: blue;
 }
 
-#important_for_bwb, #internal, #external {
+#important_for_bwb, #internal, #external, #timetravel {
     width: auto;
-    height: 235px;
-    padding: 5px;
+    height: 170px;
+    padding: 1px;
     overflow-y: auto;
     background-color: #FAD57D;
-    border-radius: 4px;
-    margin-bottom: 10px;
+    border-radius: 1px;
+    margin-bottom: 12px;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 #menubar_container{
@@ -77,19 +80,22 @@ body {
 }
 
 .result, .selected_result, .bwb_link {
-    background-color: #FFF2C7;
-    border-radius: 4px;
+    background-color: #FAD57D;
+    border-radius: 1px;
+    border-bottom: 1px solid #FFF2C7;
     padding: 5px;
-    margin-bottom: 5px;
     color: black;
     text-decoration: none;
-    min-height: 20px;
+    min-height: 25px;
 }
 
 .result:hover, .selected_result, .bwb_link:hover {
-    background-color: #FC7708;
-    color: white;
+    background-color: #FFF2C7;
     cursor: pointer;
+}
+
+.result span, .selected_result span {
+    vertical-align: middle;
 }
 
 #root_container root:hover {
@@ -107,10 +113,11 @@ body {
     padding-left: 1em;
     padding-right: 1em; 
     background-color: #FFF2C7;
-    border-radius: 4px;
+    border-radius: 1px;
     position: fixed;
     left: 0px;
     top: 50px;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 source_root, root { 

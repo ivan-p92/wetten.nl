@@ -3,7 +3,7 @@
 <!Doctype html>
 <html>
 <head>
-<title>Test page</title>
+<title>{{ title }}</title>
 <link rel="stylesheet" href="{% static 'wetten/doc.css' %}" />
 <link rel="stylesheet" href="{% static 'wetten/superfish.css' %}" />
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
@@ -18,12 +18,24 @@
 
 <div id="menubar_container">
 	<ul class="sf-menu" id="menubar">
-		<li><a href="#">Belasting subset</a>
+		<li><a href="#">Wetten</a>
 			<ul>
 				{% for bwb in bwb_links %}
 				<li><a href="{{ bwb.2 }}" title="{{ bwb.0 }}">{{ bwb.1 }}</a></li>
 				{% endfor %}
 			</ul>
+		</li>
+		<li><a href="#">Tijdreis bereik</a>
+			<ul>
+				<li><a href="#" title="Versies vergelijken op artikelniveau of hoger" onclick="setVersionScope('artikel')">
+						Artikel niveau of hoger
+					</a>
+				</li>
+				<li><a href="#" title="Versies vergelijken op alineaniveau" onclick="setVersionScope('alinea')">
+						Alinea niveau
+					</a>
+				</li>
+			<ul>
 		</li>
 	</ul>
 </div>
@@ -36,26 +48,32 @@
 	<div id="extra_info">
 	
 		<div class="info_title">Belangrijke bronnen in deze wet:</div>
-			<div id="important_for_bwb">
+		<div id="important_for_bwb">
 
-			{% if entities %}
-				{% for entity in entities %}
-					<div title="Klik om te lezen" class="result" entity="{{ entity }}">{{ descriptions|get:entity }}</div>
-				{% endfor %}
-			{% else %}
-				<p>Geen bronnen in citatienetwerk voor opgegeven BWB nummer.</p>
-			{% endif %}
-			</div>
+		{% if entities %}
+			{% for entity in entities %}
+				<div title="Klik om te lezen" class="result" entity="{{ entity }}"><span>{{ descriptions|get:entity }}</span></div>
+			{% endfor %}
+		{% else %}
+			<p>Geen bronnen in citatienetwerk voor opgegeven BWB nummer.</p>
+		{% endif %}
+		</div>
 
 		<div class="info_title">Belangrijke interne bronnen voor selectie:</div>
-			<div id="internal">
-			Klik in ergens in het geraadpleegde document om belangrijke documenten op te halen.
-			</div>
+		<div id="internal">
+		Klik in ergens in het geraadpleegde document om belangrijke documenten op te halen.
+		</div>
 
 		<div class="info_title">Belangrijke externe bronnen voor selectie:</div>
-			<div id="external">
-			Klik in ergens in het geraadpleegde document om belangrijke documenten op te halen.
-			</div>
+		<div id="external">
+		Klik in ergens in het geraadpleegde document om belangrijke documenten op te halen.
+		</div>
+		
+		<div class="info_title">Tijdreizen – andere versies voor selectie:</div>
+		<div id="timetravel">
+		Het niveau waarop naar eerdere en/of latere versies gezocht wordt kan in het menu
+		bij "Tijdreis bereik" ingesteld worden.
+		</div>
 	</div>
 </div>
 

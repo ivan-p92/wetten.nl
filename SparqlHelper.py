@@ -14,11 +14,16 @@ from xml.dom import minidom as mini
 import urllib2
 import pickle
 import re
+import datetime
 
 class SparqlHelper:
     
     def __init__(self):
         self.workDictionary = None
+        self.months = ['', ' januari ', ' februari ', ' maart ',
+                       ' april ', ' mei ', ' juni ', ' juli ',
+                       ' augustus ', ' september ', ' oktober ',
+                       ' november ', ' december ']
     
     def loadWorkDictionary(self):
         self.workDictionary = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/works.pickle', 'r'))
@@ -26,9 +31,11 @@ class SparqlHelper:
     def getLatestDocForEntity(self, entity):
         """
         Returns the latest link to doc.metalex.eu/doc/<document> for the given work URI,
-        where <document> is determined by the expression for the given work URI
+        where <document> is determined by the expression for the work URI for the given
+        entity description.
+        Note: only retrieves latest doc and only for entities that are in the network.
         
-        @param work: the work URI
+        @param work: the entity description
         @return: string containing the latest expression
         """
         if not self.workDictionary:
@@ -121,6 +128,13 @@ class SparqlHelper:
         title = binding.getElementsByTagName('literal')[0].firstChild.nodeValue
 #         print 'title: ' + title
         return title
+    
+    def getDocsForIds(self, idExpressions):
+        docs = []
+        for idExpression in idExpressions:
+            docs += [self.getDocForId(idExpression)]
+            
+        return docs
         
     def getDocForId(self, idExpression):
         """
@@ -160,6 +174,49 @@ class SparqlHelper:
     def getLatestCitedExpressionForReference(self, reference):
         work = self.getCitedWorkForReference(reference)
         return self.getLatestExpressionForWork(work)
+    
+    def datesForExpressions(self, expressions):
+        """
+        Given a list of expression URI's, returns a dictionary with two items.
+        Item "dates" holds a list of sorted dates (Dutch string format).
+        Item "expressions" holds a dictionary with each given expression and their
+        date string as key.
+        
+        @param expressions: list of expression URI's.
+        @return: dictionary, see above.
+        """
+        dates = []
+        expressionDict = {}
+        for expression in expressions:
+            dateTuple = self.dateForExpression(expression)
+            expressionDict[dateTuple[1]] = expression
+            dates += [dateTuple]
+            
+        # Sort the date tuples by date
+        dates.sort(key=lambda x:x[0])
+        
+        # Only keep the sorted date strings
+        sortedDates = [d[1] for d in dates]
+        return {'dates':sortedDates, 'expressions':expressionDict}
+        
+    def dateForExpression(self, expression):
+        """
+        Returns tuple of date object and date string in Dutch format, e.g. "1 januari 2011",
+        for given expression URI.
+        
+        @param expression: URI containing a date in YYYY-mm-dd format.
+        @return: (dateObject, dateString) tuple.
+        """
+        datePattern = re.compile('\d\d\d\d-\d\d-\d\d')
+        match = re.search(datePattern, expression)
+        if match:
+            dateString = match.group(0)
+            exprDate = datetime.datetime.strptime(dateString, '%Y-%m-%d').date()
+            dateString = str(exprDate.day) + self.months[exprDate.month] + str(exprDate.year)
+            
+            return (exprDate, dateString) 
+        else:
+            return 'Geen datum'
     
 def main():
     pass

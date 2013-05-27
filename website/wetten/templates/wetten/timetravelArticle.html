@@ -1,0 +1,20 @@
+{% load wetten_extras %}
+
+{% for date in dates %}
+
+{% if date == current %}
+    <div title="Klik om te lezen" class="result v_result" expression="{{ expressions|get:date }}">
+        <span>
+            {{ date }} – geraadpleegd
+        </span>
+    </div>
+{% else %}
+    <div title="Klik om te lezen" class="result v_result" expression="{{ expressions|get:date }}">
+        <span>
+            {{ date }}
+        </span>
+    </div>
+    
+{% endif %}
+
+{% endfor %}

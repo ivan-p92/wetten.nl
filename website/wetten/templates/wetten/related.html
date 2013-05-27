@@ -3,16 +3,20 @@
 {% if bwb_titles %}
     {% for entity in entities %}
         <div title="Klik om te lezen" class="result" entity="{{ entity }}">
-            <div class="result_title">
-                {{ bwb_titles|get_title:entity }}
-            </div>
-            {{ descriptions|get:entity }}
+            <span>
+                <div class="result_title">
+                    {{ bwb_titles|get_title:entity }}
+                </div>
+                {{ descriptions|get:entity }}
+            </span>
         </div>
     {% endfor %}
 {% else %}
     {% for entity in entities %}
         <div title="Klik om te lezen" class="result" entity="{{ entity }}">
-            {{ descriptions|get:entity }}
+            <span>
+                {{ descriptions|get:entity }}
+            </span>
         </div>
     {% endfor %}
 {% endif %}
