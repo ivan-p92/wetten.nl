@@ -43,7 +43,7 @@ body {
     overflow-x: hidden;
     overflow-y: auto;
     position: fixed;
-    top: 445px;
+    top: 455px;
     left: 0px;
     padding: 5px;
     padding-left: 1em;
@@ -59,8 +59,19 @@ body {
     cursor: pointer;
 }
 
-#close_details {
-    color: blue;
+#close_button:hover {
+    cursor: pointer;
+    opacity: .5;
+}
+
+#close_button {
+    display: none;
+    position: fixed;
+    left: 735px;
+    top: 440px;
+    width: 30px;
+    height: 30px;
+    z-index: 1000;
 }
 
 #important_for_bwb, #internal, #external, #timetravel {

@@ -5,7 +5,6 @@ $(document).ready( function() {
 
 // This binds all clicks in the metalex view to update the related information.
 $('root').bind('click', function(e){
-	console.log('Click fired');
 	var target = $(e.target);
 	
 	// Get "about" value from clicked element. This URI is used to determine its
@@ -25,6 +24,10 @@ $('#menubar').superfish({
 	//add options here if required
 });
 
+// Bind the close button.
+$('#close_button').bind('click', function() {
+    hideDetails();
+});
 
 // Bind references in metalex data
 bindRefs();
@@ -173,6 +176,7 @@ function setWidth() {
 	    metalex = (metalex < 300) ? 300: metalex;
 	    var diff = 700 - metalex;
 	    $('#root_container, #result_details').width(metalex);
+	    $('#close_button').css('left', (metalex + 35) + 'px');
 	    $('#info_container').css('left', (800-diff) + 'px');
 	}
 	else {
@@ -213,6 +217,7 @@ function getRelated(entity) {
 function loadReferenceContent(about) {
     // Show the view and change the metalex container's height.
     $('#result_details').show();
+    $('#close_button').show();
     $('#root_container').height(380);
 
     // Show that data is being loaded.
@@ -232,6 +237,7 @@ function loadReferenceContent(about) {
 function showDetails(entity) {
     // Show the view and change the metalex container's height.
 	$('#result_details').show();
+    $('#close_button').show();
 	$('#root_container').height(380);
 	
 	// Show that data is being loaded.
@@ -250,6 +256,7 @@ function showDetails(entity) {
 function loadMetalexData(expression) {
     // Show the view and change the metalex container's height.
 	$('#result_details').show();
+	$('#close_button').show();
 	$('#root_container').height(380);
 	
 	// Show that data is being loaded.
@@ -289,5 +296,6 @@ function getVersions(about) {
 // Hides the details view and restores the original metalex view to full height
 function hideDetails() {
 	$('#result_details').hide();
+	$('#close_button').hide();
 	$('#root_container').height(775);
 }

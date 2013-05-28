@@ -92,8 +92,7 @@ def relatedContent(request):
     metalexData = urllib2.urlopen(expression)
     metalexXML = metalexData.read()
     
-    closeLink = '<div id="close_details">Sluit dit venster</div>\n'
-    return HttpResponse(closeLink + metalexXML)
+    return HttpResponse(metalexXML)
 
 def reference(request):
     sparqlHelper = sparql.SparqlHelper()
@@ -103,8 +102,7 @@ def reference(request):
     metalexData = urllib2.urlopen(citedExpression)
     metalexXML = metalexData.read()
     
-    closeLink = '<div id="close_details">Sluit dit venster</div>\n'
-    return HttpResponse(closeLink + metalexXML)
+    return HttpResponse(metalexXML)
     
 def timetravelArticle(request):
     parser = CP.CitesParser()
@@ -141,5 +139,4 @@ def metalexContent(request):
     metalexData = urllib2.urlopen(expression)
     metalexXML = metalexData.read()
     
-    closeLink = '<div id="close_details">Sluit dit venster</div>\n'
-    return HttpResponse(closeLink + metalexXML)
+    return HttpResponse(metalexXML)
