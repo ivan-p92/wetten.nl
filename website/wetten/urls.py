@@ -10,4 +10,5 @@ urlpatterns = patterns('',
     url(r'^reference/$', views.reference, name='reference'),
     url(r'^timetravelArticle/$', views.timetravelArticle, name='timetravelArticle'),
     url(r'^metalexContent/$', views.metalexContent, name='metalexContent'),
+    url(r'^timetravelParagraph/$', views.timetravelParagraph, name='timetravelParagraph'),
 )

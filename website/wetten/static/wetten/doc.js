@@ -12,7 +12,7 @@ $('root').bind('click', function(e){
 	var about = target.attr("about");
 	if (about) {
 		getRelated(about);
-		getVersions(about);
+		getVersions(target, target, 1);
 	}
 	else {
 		console.log('Undefined');
@@ -59,6 +59,9 @@ function setVersionScope(setting) {
               '"Tijdreizen" venster versies te zien van de betreffende tekst die\n' +
               'inhoudelijk verschillen van de geraadpleegde versie.');
     }
+    
+    // Collapse the menu item.
+    $('#menubar').children('li:nth-child(2)').superfish('hide');
 }
 
 function bindCloseDetails() {
@@ -273,12 +276,14 @@ function loadMetalexData(expression) {
 }
 
 // Retrieves other versions for clicked part of document.
-function getVersions(about) {
+// |iteraton| ensures search for parent with li, lid or al class stops after a limit
+function getVersions(target, originalTarget, iteration) {
     // Show that data is being retrieved.
 	$('#timetravel').html('<b style="color:green">Gegevens laden...</b>');
 	
 	// Perform ajax get request for current version scope setting.
 	if (versionScope == 'artikel') {
+	    var about = target.attr('about');
         $.get('/wetten/timetravelArticle/', {'about': about}, function(data) {
             
             // Populate the view
@@ -289,7 +294,39 @@ function getVersions(about) {
         });
     }
     else if (versionScope == 'alinea') {
-        console.log('not yet implemented');
+        // Proceed if the current target element has one of the following classes:
+        // li, lid or al.
+        if (target.hasClass('al') || target.hasClass('li') || target.hasClass('lid')) {
+            var about = target.attr('about');
+            $.get('/wetten/timetravelParagraph/', {'about': about}, function(data) {
+            
+                // Populate the view
+                $('#timetravel').html(data);
+        
+                // Bind the new result elements to the click event.
+                bindResults();
+            });
+        }
+        // Else take the parent class and call this function again, but only for a total
+        // of 4 times.
+        else if (iteration < 5){
+            var parentTarget = target.parent();
+            console.log('new parent');
+            getVersions(parentTarget, originalTarget, iteration + 1);
+        }
+        // User has clicked on higher level element.
+        else {
+            var about = originalTarget.attr('about');
+            // Get regular article or higher level source for original target.
+            $.get('/wetten/timetravelArticle/', {'about': about}, function(data) {
+            
+                // Populate the view
+                $('#timetravel').html(data);
+        
+                // Bind the new result elements to the click event.
+                bindResults();
+            });            
+        }
     }
 }
 

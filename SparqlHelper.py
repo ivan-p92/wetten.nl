@@ -179,8 +179,8 @@ class SparqlHelper:
         """
         Given a list of expression URI's, returns a dictionary with two items.
         Item "dates" holds a list of sorted dates (Dutch string format).
-        Item "expressions" holds a dictionary with each given expression and their
-        date string as key.
+        Item "expressions" holds a dictionary with the given expressions and their
+        date strings as key.
         
         @param expressions: list of expression URI's.
         @return: dictionary, see above.
@@ -217,10 +217,153 @@ class SparqlHelper:
             return (exprDate, dateString) 
         else:
             return 'Geen datum'
-    
+        
+    def differingExpressionsForHash(self, hashURI, currentDate):
+        """
+        Returns a list of expressions that differ from the one defined by the given
+        hash. This means the list returned contains the expression for the given hash
+        and any other expressions that have not an owl:sameAs relation with the given hash,
+        but only one for each hash. The oldest expression for each has (except the current hash)
+        is returned.
+        
+        The algorithm consists of the following queries and steps:
+        - Get all expressions that have an owl:sameAs relation with the hash
+        - Take the expression with the current date from it
+        - Get the work from that expression
+        - Get all expressions and their hashes for that work
+        - Loop through the sparql results and build a dictionary [hash: (expression, dateTuple)] 
+          with |date| being the datetime.date() corresponding to the expression. If the hash isn't
+          yet in the dictionary, add the hash and expression. If the hash is already in the
+          dictionary, replace the (expression, dateTuple) tuple for that hash if the new date is
+          older than the previous date. Also add the key:object pair for the given hash (|hashURI|).
+        - Build a dictionary of dateString:expression pairs.
+        - Take the date tuples and sort them by date.
+        - Make a list with only the date strings (in sorted order).
+        - Return a dictionary similar to the one in datesForExpressions().
+        This algorithm ensures only a single expression for each available hash is returned,
+        that the oldest expression for each hash is used and that the expressions are sorted by date.
+        
+        @param hashURI: the work URI with a hash at the end.
+        @param currentDate: date in YYYY-mm-dd format
+        @return: a dictionary with two items:
+            Item "dates" holds a list of sorted dates (Dutch string format).
+            Item "expressions" holds a dictionary with each expression and its
+            date string as key.
+        """
+        
+        # The query to get the expression(s) for the hash.
+        query = """
+        PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+        SELECT DISTINCT ?expression WHERE {
+         ?expression owl:sameAs <""" + hashURI + """>
+        }
+        """
+        # Pass query to sparql endpoint (through regular post request)
+        data = urllib2.urlopen('http://doc.metalex.eu:8000/sparql/', 'query=' + query + '&soft-limit=-1')
+        
+        # Read xml and get results
+        xml = mini.parseString(data.read())
+        results = xml.getElementsByTagName('result')
+        
+        expressionsForHash = []
+        # For each result extract the expression from the binding
+        for result in results:
+            binding = result.getElementsByTagName('binding')[0]
+            expressionsForHash += [binding.getElementsByTagName('uri')[0].firstChild.nodeValue]
+        
+        currentExpression = ''
+        # Find and save the expression for the current date. Then remove it from |expressionsForHash|
+        for expression in expressionsForHash:
+            if re.search(currentDate, expression):
+                currentExpression = expression
+                expressionsForHash.remove(expression)
+                break
+            
+        # Get the work level URI for the current expression
+        query = """
+        PREFIX mo: <http://www.metalex.eu/schema/1.0#>
+
+        SELECT ?work WHERE {
+         <""" + currentExpression + """> mo:realizes ?work
+        }
+        """
+        # Pass query to sparql endpoint (through regular post request)
+        data = urllib2.urlopen('http://doc.metalex.eu:8000/sparql/', 'query=' + query + '&soft-limit=-1')
+        
+        # Read xml and get results
+        xml = mini.parseString(data.read())
+        result = xml.getElementsByTagName('result')[0]
+        
+        # Get the work URI
+        binding = result.getElementsByTagName('binding')[0]
+        work = binding.getElementsByTagName('uri')[0].firstChild.nodeValue
+        
+        # Get all expressions and their hashes for the work
+        query = """
+        PREFIX owl: <http://www.w3.org/2002/07/owl#>
+        PREFIX mo: <http://www.metalex.eu/schema/1.0#>
+
+        SELECT DISTINCT ?expression, ?hash WHERE {
+         ?expression mo:realizes <""" + work + """>.
+         ?expression owl:sameAs ?hash
+        }
+        """
+        # Pass query to sparql endpoint (through regular post request)
+        data = urllib2.urlopen('http://doc.metalex.eu:8000/sparql/', 'query=' + query + '&soft-limit=-1')
+        
+        # Read xml and get results
+        xml = mini.parseString(data.read())
+        results = xml.getElementsByTagName('result')
+        
+        hashesExpressionsAndDates = {}
+        # For each result:
+        # - If the hash is equal to the given hash, ignore.
+        # - Else if the hash isn't yet in the dictionary, add it as key
+        #   with the tuple (expression, dateTuple) as object.
+        # - Else if the hash is already in the dictionary, replace the object
+        #   if the new date is older than the previous date.
+        for result in results:
+            bindings = result.getElementsByTagName('binding')
+            expression = bindings[0].getElementsByTagName('uri')[0].firstChild.nodeValue
+            resultHash = bindings[1].getElementsByTagName('uri')[0].firstChild.nodeValue
+            
+            if resultHash == hashURI:
+                continue
+            else:
+                dateTuple = self.dateForExpression(expression)
+                # Convert expression to doc.metalex.eu/doc/.../data.xml format
+                docExpression = self.getDocForId(expression)
+                
+                if resultHash not in hashesExpressionsAndDates:
+                    hashesExpressionsAndDates[resultHash] = (docExpression, dateTuple)
+                else:
+                    previousDate = hashesExpressionsAndDates[resultHash][1][0]
+                    if dateTuple[0] < previousDate:
+                        hashesExpressionsAndDates[resultHash] = (docExpression, dateTuple)
+        
+        # Add the current hash and expression and date to the dictionary.
+        dateTuple = self.dateForExpression(currentExpression)
+        docExpression = self.getDocForId(currentExpression)
+        hashesExpressionsAndDates[hashURI] = (docExpression, dateTuple)
+        
+        # Make dictionary of dateString:expression pairs.
+        expressionDict = {hashesExpressionsAndDates[key][1][1]:hashesExpressionsAndDates[key][0] for key in hashesExpressionsAndDates}
+        
+        # Take the date tuples and sort them
+        dateTuples = [hashesExpressionsAndDates[key][1] for key in hashesExpressionsAndDates]
+        dateTuples.sort(key=lambda x:x[0])
+        
+        # Only keep the sorted date strings
+        sortedDates = [d[1] for d in dateTuples]
+        return {'dates':sortedDates, 'expressions':expressionDict}
+        
+            
 def main():
-    pass
-    
+    sh = SparqlHelper()
+    d = sh.differingExpressionsForHash('http://doc.metalex.eu/id/BWBR0011353/hoofdstuk/3/afdeling/3.2/paragraaf/3.2.3/artikel/3.67/al/4c6159e7b11546383a655ce21da3150e1f5ec05a', '2013-01-15')
+    print d
     print '\nExecution ended'
+    
 if __name__ == '__main__':
     main()

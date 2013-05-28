@@ -132,6 +132,29 @@ def timetravelArticle(request):
         return HttpResponse(versions)
     else:
         return HttpResponse('Er is een fout opgetreden.')
+    
+def timetravelParagraph(request):
+    sparqlHelper = sparql.SparqlHelper()
+    about = request.GET.get('about')
+    
+    # Get referer to extract its date later on
+    referer = request.META.get('HTTP_REFERER') 
+    
+    currentDate = re.search('\d\d\d\d-\d\d-\d\d', referer).group(0)
+    versionData = sparqlHelper.differingExpressionsForHash(about, currentDate)
+    
+    # The date for the currently viewed document
+    currentDateTuple = sparqlHelper.dateForExpression(referer)
+    
+    # Render the results.
+    template = loader.get_template('wetten/timetravelArticle.html')
+    context = Context({'expressions': versionData['expressions'],
+                       'dates': versionData['dates'],
+                       'current': currentDateTuple[1]})
+    versions = template.render(context)
+    
+    return HttpResponse(versions)
+    
 
 def metalexContent(request):
     expression = request.GET.get('expression')
