@@ -193,7 +193,7 @@ class SparqlHelper:
             dates += [dateTuple]
             
         # Sort the date tuples by date
-        dates.sort(key=lambda x:x[0])
+        dates.sort(key=lambda x:x[0], reverse=True)
         
         # Only keep the sorted date strings
         sortedDates = [d[1] for d in dates]
@@ -352,7 +352,7 @@ class SparqlHelper:
         
         # Take the date tuples and sort them
         dateTuples = [hashesExpressionsAndDates[key][1] for key in hashesExpressionsAndDates]
-        dateTuples.sort(key=lambda x:x[0])
+        dateTuples.sort(key=lambda x:x[0], reverse=True)
         
         # Only keep the sorted date strings
         sortedDates = [d[1] for d in dateTuples]

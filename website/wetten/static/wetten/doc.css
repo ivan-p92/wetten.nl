@@ -4,6 +4,26 @@ body {
     background-color: #FFFDE8;
 }
 
+#current_selection {
+    text-overflow: ellipsis;
+    width: 470px;
+    overflow: hidden;
+}
+
+#cs_li {
+    background-color: #FFF2C7;
+    width: 480px;
+    text-overflow: ellipsis;
+}
+
+#cs_li:hover, #current_selection:hover {
+    cursor: default;
+}
+
+#cs_li:hover, #current_selection:hover {
+    cursor: default;
+}
+
 #info_container {
     height: 750px;
     width: 95%;

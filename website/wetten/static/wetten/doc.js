@@ -1,4 +1,4 @@
-var versionScope = 'artikel'
+var versionScope = 'alinea'
 
 // Do necessary bindings.
 $(document).ready( function() {
@@ -17,6 +17,12 @@ $('root').bind('click', function(e){
 	else {
 		console.log('Undefined');
 	}
+});
+
+// When user clicks on current selection item in drop down menu, collapse it to
+// cancel highlight.
+$('#current_selection').bind('click', function() {
+    $('#menubar').children('li:nth-child(3)').superfish('hide'); 
 });
 
 // Superfish for dropdown menu
@@ -178,6 +184,8 @@ function setWidth() {
 	    var metalex = w - 400;
 	    metalex = (metalex < 300) ? 300: metalex;
 	    var diff = 700 - metalex;
+	    $('#cs_li').width(480 - diff);
+	    $('#current_selection').width(480 - diff - 10);	    
 	    $('#root_container, #result_details').width(metalex);
 	    $('#close_button').css('left', (metalex + 35) + 'px');
 	    $('#info_container').css('left', (800-diff) + 'px');
@@ -185,7 +193,10 @@ function setWidth() {
 	else {
 	    var info = w - 800;
         info = (info < 300)? 300: info;
+        $('#cs_li').width(480);
+        $('#current_selection').width(470);
         $('#root_container, #result_details').width(700);
+        $('#close_button').css('left', '735px');
         $('#info_container').width(info);
         $('#info_container').css('left', '800px');
     }
@@ -206,12 +217,15 @@ function getRelated(entity) {
   		    // Populate the views
   			$('#internal').html(data['internal']);
   			$('#external').html(data['external']);
+  			$('#current_selection').html('Selectie: ' + data['current_selection']);
   			
   			// Bind the new result elements to the click event.
 		    bindResults();
   		}
   		else {
-  			alert('Er is geen data gevonden.');
+  			$('#internal').html('<b style="color:green">Geen citatie gegevens beschikbaar.</b>');
+	        $('#external').html('<b style="color:green">Geen citatie gegevens beschikbaar.</b>');
+            $('#current_selection').html('Selectie: ' + data['current_selection']);
   		}
 	});
 }

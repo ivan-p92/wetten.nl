@@ -52,12 +52,14 @@ def related(request):
     bwb_titles = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/bwb_titles.pickle'))
     
     entity = request.GET.get('entity')
-    entityDescription = parser.entityDescription(entity)
+    entityDescriptionData = parser.entityDescription(entity, True)
+    entityDescription = entityDescriptionData[0]
+    humanDescription = parser.humanDescriptionForEntity(entityDescriptionData[2])
     if entityDescription:
         query = QN.QueryNetwork()
         
         if not query.entityIsInGraph(entityDescription):
-            return HttpResponse(json.dumps({'success': False}))
+            return HttpResponse(json.dumps({'success': False, 'current_selection': humanDescription,}))
         
         relatedEntities = query.sortRelatedEntities(entityDescription)  
         
@@ -65,7 +67,7 @@ def related(request):
         template = loader.get_template('wetten/related.html')
         context = Context({'entities': relatedEntities['internal'],
                            'descriptions': human_descriptions,
-                           'bwb_titles': False})
+                           'bwb_titles': False,})
         internal = template.render(context)
         
         # Render div's for external sources
@@ -76,12 +78,13 @@ def related(request):
         
         data = {'success': True,
                'internal': internal,
-               'external': external
+               'external': external,
+               'current_selection': humanDescription,
                }
         
         return HttpResponse(json.dumps(data))
     else:
-        return HttpResponse(json.dumps({'success': False}))
+        return HttpResponse(json.dumps({'success': False, 'current_selection': 'onbekend',}))
     
 def relatedContent(request):
     sparqlHelper = sparql.SparqlHelper()
