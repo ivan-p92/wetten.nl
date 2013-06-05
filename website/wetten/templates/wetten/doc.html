@@ -42,6 +42,8 @@
 	</ul>
 </div>
 
+<div id="focus_version_picker" title="Klik om alle versies te tonen">{{ dateInfo }}</div>
+
 <div id="root_container" title="Klik om nuttige bronnen bij dit document/artikel te vinden">
 {{ metalexXML|safe }}
 </div>
@@ -63,12 +65,12 @@
 
 		<div class="info_title">Belangrijke interne bronnen voor selectie:</div>
 		<div id="internal">
-		Klik in ergens in het geraadpleegde document om belangrijke documenten op te halen.
+		Klik in ergens in het geraadpleegde document om belangrijke citerende en geciteerde documenten op te halen.
 		</div>
 
 		<div class="info_title">Belangrijke externe bronnen voor selectie:</div>
 		<div id="external">
-		Klik in ergens in het geraadpleegde document om belangrijke documenten op te halen.
+		Klik in ergens in het geraadpleegde document om belangrijke citerende en geciteerde documenten op te halen.
 		</div>
 		
 		<div class="info_title">Tijdreizen – andere versies voor selectie:</div>
@@ -80,7 +82,29 @@
 </div>
 
 <div id="close_button" style="background-image:url({% static 'wetten/Close_button.png' %})" title="Venster sluiten"></div>
-<div id="result_details" style="display: none"></div>
+<div id="detail_version_picker" title="Klik om alle versies te tonen" style="display:none">Huidige versie: 1 september 2011 – Dit is voor details!</div>
+<div id="result_details" style="display: none;"></div>
+
+<div id="versions_popup" style="display: none;" title="Verberg">
+	<div id="focus_versions" title="Selecteer versie">
+		{% for date in dates %}
+
+		{% if date == current %}
+			<div class="f_version">
+					{{ date }} – huidige versie
+			</div>
+		{% else %}
+			<a class="f_version" href="{{ expressions|get:date }}" target="_blank" title="Open in nieuw venster">
+					{{ date }}
+			</a>
+	
+		{% endif %}
+
+		{% endfor %}
+	</div>
+	<div id="detail_versions" style="display: none;" title="Selecteer versie">
+	</div>
+</div>
 
 </body>
 </html>

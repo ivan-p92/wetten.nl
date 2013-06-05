@@ -19,6 +19,22 @@ $('root').bind('click', function(e){
 	}
 });
 
+$('#versions_popup').bind('click', function() {
+    $('#versions_popup').hide();
+});
+
+$('#focus_version_picker').bind('click', function() {
+    $('#detail_versions').hide();
+    $('#focus_versions').show();
+    $('#versions_popup').show();
+});
+
+$('#detail_version_picker').bind('click', function() {
+    $('#detail_versions').show();
+    $('#focus_versions').hide();
+    $('#versions_popup').show();
+});
+
 // When user clicks on current selection item in drop down menu, collapse it to
 // cancel highlight.
 $('#current_selection').bind('click', function() {
@@ -70,15 +86,11 @@ function setVersionScope(setting) {
     $('#menubar').children('li:nth-child(2)').superfish('hide');
 }
 
-function bindCloseDetails() {
-    $('#close_details').bind('click', function(){
-	    hideDetails();
-    });
-
-}
 
 // Bind intrefs and extrefs
 function bindRefs() {
+    // First unbind to avoid multiple calls after clicking on reference
+    $('.intref, .extref').unbind();
     $('.intref, .extref').bind('click', function(e) {
         // Don't register as click in parent elements
         e.stopPropagation();
@@ -116,6 +128,7 @@ function bindResults() {
         // Show (load) the details for the entity to which the selected result belongs.
         if (target.hasClass('v_result')) {
             var expression = target.attr('expression');
+            detailVersionsTimetravel();
             loadMetalexData(expression);
         }
         else {
@@ -141,6 +154,7 @@ function bindResults() {
         // Show (load) the details for the entity to which the selected result belongs.
         if (result.hasClass('v_result')) {
             var expression = result.attr('expression');
+            detailVersionsTimetravel();
             loadMetalexData(expression);
         }
         else {
@@ -166,10 +180,37 @@ function bindResults() {
         // Show (load) the details for the entity to which the selected result belongs.
         if (result.hasClass('v_result')) {
             var expression = result.attr('expression');
+            detailVersionsTimetravel();
             loadMetalexData(expression);
         }
         else {
             showDetails(result.attr('entity'));
+        }
+    });
+}
+
+function bindDetailVersions() {
+    $('.d_version').unbind();
+    $('.d_version').bind('click', function(e) {
+        var target = $(e.target);
+        if (!target.hasClass('skip')) {
+            var dateMessage = $('.skip').html();
+            dateMessage = dateMessage.replace(' – getoonde versie', '');
+            $('.skip').html(dateMessage);
+            $('.skip').removeClass('skip');
+            target.addClass('skip');
+            dateMessage = target.html();
+            target.html(dateMessage + ' – getoonde versie');
+            
+            var dateInfo;
+            if (target.index() == 0) {
+                dateInfo = 'Getoonde versie: ' + dateMessage + ' – Dit is de nieuwste versie.';
+            } 
+            else {
+                dateInfo = 'Getoonde versie: ' + dateMessage + ' – Let op: nieuwere versie beschikbaar!';
+            }
+            $('#detail_version_picker').html(dateInfo);
+            loadMetalexData(target.attr('expression'));
         }
     });
 }
@@ -235,18 +276,22 @@ function loadReferenceContent(about) {
     // Show the view and change the metalex container's height.
     $('#result_details').show();
     $('#close_button').show();
-    $('#root_container').height(380);
+    $('#detail_version_picker').show();
+    $('#root_container').height(350);
 
     // Show that data is being loaded.
     $('#result_details').html('<b style="color:green">Gegevens laden...</b>');
 
     // Perform ajax get request.
     $.get('/wetten/reference/', {'about': about}, function(data) {
-        $('#result_details').html(data);
+        data = JSON.parse(data);
+        $('#result_details').html(data['metalex']);
         // Scroll to top.
         $('#result_details').scrollTop(0);
-        bindCloseDetails();
+        $('#detail_versions').html(data['versions']);
+        $('#detail_version_picker').html(data['dateInfo']);
         bindRefs();
+        bindDetailVersions();
     });
 }
 
@@ -255,18 +300,22 @@ function showDetails(entity) {
     // Show the view and change the metalex container's height.
 	$('#result_details').show();
     $('#close_button').show();
-	$('#root_container').height(380);
+    $('#detail_version_picker').show();
+	$('#root_container').height(350);
 	
 	// Show that data is being loaded.
 	$('#result_details').html('<b style="color:green">Gegevens laden...</b>');
 	
 	// Perform ajax get request.
 	$.get('/wetten/relatedContent/', {'entity': entity}, function(data) {
-  		$('#result_details').html(data);
-  		// Scroll to top.
-  		$('#result_details').scrollTop(0);
-	    bindCloseDetails();
-	    bindRefs();
+  		data = JSON.parse(data);
+        $('#result_details').html(data['metalex']);
+        // Scroll to top.
+        $('#result_details').scrollTop(0);
+        $('#detail_versions').html(data['versions']);
+        $('#detail_version_picker').html(data['dateInfo']);
+        bindRefs();
+        bindDetailVersions();
 	});
 }
 
@@ -274,7 +323,8 @@ function loadMetalexData(expression) {
     // Show the view and change the metalex container's height.
 	$('#result_details').show();
 	$('#close_button').show();
-	$('#root_container').height(380);
+    $('#detail_version_picker').show();
+	$('#root_container').height(350);
 	
 	// Show that data is being loaded.
 	$('#result_details').html('<b style="color:green">Gegevens laden...</b>');
@@ -284,7 +334,6 @@ function loadMetalexData(expression) {
   		$('#result_details').html(data);
   		// Scroll to top.
   		$('#result_details').scrollTop(0);
-	    bindCloseDetails();
 	    bindRefs();
 	});
 }
@@ -314,8 +363,9 @@ function getVersions(target, originalTarget, iteration) {
             var about = target.attr('about');
             $.get('/wetten/timetravelParagraph/', {'about': about}, function(data) {
             
+                var nb = '<div class="nb">NB: alleen inhoudelijk van elkaar verschillende versies getoond</div>';
                 // Populate the view
-                $('#timetravel').html(data);
+                $('#timetravel').html(nb + data);
         
                 // Bind the new result elements to the click event.
                 bindResults();
@@ -348,5 +398,13 @@ function getVersions(target, originalTarget, iteration) {
 function hideDetails() {
 	$('#result_details').hide();
 	$('#close_button').hide();
-	$('#root_container').height(775);
+	$('#detail_version_picker').hide()
+	$('#root_container').height(745);
+}
+
+// Retrieve and set versions for clicked result
+function detailVersionsTimetravel() {
+    $('#detail_version_picker').html('Huidige versie: zie tijdreisvenster.');
+    var div = '<div class="d_version skip">Zie tijdreisvenster</div>';
+    $('#detail_versions').html(div);
 }

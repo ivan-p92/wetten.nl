@@ -16,15 +16,20 @@ import networkx as nx
 import time
 import pickle
 import re
+from os import path
 
 class QueryNetwork:
     
-    def __init__(self, graphPath='/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/graph.pickle'):
+    def __init__(self, graphFileName='graph.pickle'):
+        """
+        Note: graph file must be in same directory as this module.
+        """
+        self.dirName = path.dirname(__file__)
         t = time.time()
-        print 'Loading graph from file: "' + graphPath + '"...'
-        self.G = pickle.load(open(graphPath, 'r'))
+        print 'Loading graph from file: "' + self.dirName + '/' + graphFileName + '"...'
+        self.G = pickle.load(open(self.dirName + '/' + graphFileName, 'r'))
         print 'Graph loading time: ' + str(int(time.time() - t)) + ' seconds'
-        
+
         self.degree = None
         self.degreeCentrality = None
         self.betweenness = None
@@ -53,7 +58,7 @@ class QueryNetwork:
         print '\nCalculating degree...'
         self.degree = nx.degree(self.G)
         print 'Degree calculation time: ' + str(int(time.time() - t)) + ' seconds'
-        pickle.dump(self.degree, open('degree.pickle', 'w'))
+        pickle.dump(self.degree, open(self.dirName + '/degree.pickle', 'w'))
         
     def calcAndPickleDegreeCentrality(self):
         """
@@ -64,7 +69,7 @@ class QueryNetwork:
         print '\nCalculating degree centrality...'
         self.degreeCentrality = nx.degree_centrality(self.G)
         print 'Degree centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
-        pickle.dump(self.degreeCentrality, open('degree_centrality.pickle', 'w'))
+        pickle.dump(self.degreeCentrality, open(self.dirName + '/degree_centrality.pickle', 'w'))
         
     def calcAndPickleBetweenness(self):
         """
@@ -75,7 +80,7 @@ class QueryNetwork:
         print '\nCalculating betweenness centrality...'
         self.betweenness = nx.betweenness_centrality(self.G)
         print 'Betweenness centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
-        pickle.dump(self.betweenness, open('betweenness_centrality.pickle', 'w'))
+        pickle.dump(self.betweenness, open(self.dirName + '/betweenness_centrality.pickle', 'w'))
         
     def calcAndPickleEigenvector(self):
         """
@@ -87,7 +92,7 @@ class QueryNetwork:
         print '\nCalculating eigenvector centrality...'
         self.eigenvector = nx.eigenvector_centrality(self.G, max_iter=1000)
         print 'Eigenvector centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
-        pickle.dump(self.eigenvector, open('eigenvector_centrality.pickle', 'w'))
+        pickle.dump(self.eigenvector, open(self.dirName + '/eigenvector_centrality.pickle', 'w'))
         
     def calcAndPickleLoadCentrality(self):
         """
@@ -99,7 +104,7 @@ class QueryNetwork:
         print '\nCalculating load centrality...'
         self.loadCentrality = nx.load_centrality(self.G)
         print 'Load centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
-        pickle.dump(self.loadCentrality, open('load_centrality.pickle', 'w'))
+        pickle.dump(self.loadCentrality, open(self.dirName + '/load_centrality.pickle', 'w'))
         
     def calcAndPickleClosenessCentrality(self):
         """
@@ -110,13 +115,13 @@ class QueryNetwork:
         print '\nCalculating closeness centrality...'
         self.closenessCentrality = nx.closeness_centrality(self.G)
         print 'Closeness centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
-        pickle.dump(self.closenessCentrality, open('closeness_centrality.pickle', 'w'))
+        pickle.dump(self.closenessCentrality, open(self.dirName + '/closeness_centrality.pickle', 'w'))
     
     def calcAndPickleAll(self):
         self.calcAndPickleDegree()
         self.calcAndPickleDegreeCentrality()
         self.calcAndPickleBetweenness()
-        self.calcAndPickleClosenessCentrality()
+#         self.calcAndPickleClosenessCentrality()
         self.calcAndPickleLoadCentrality()
 #         self.calcAndPickleEigenvector()
         print '\nCalculated and pickled all..'
@@ -128,12 +133,12 @@ class QueryNetwork:
         Note: doesn't perform existence check, will terminate if files don't exist
         """
         t = time.time()
-        self.degree = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/degree.pickle', 'r'))
-        self.degreeCentrality = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/degree_centrality.pickle', 'r'))
-        self.betweenness = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/betweenness_centrality.pickle', 'r'))
+        self.degree = pickle.load(open(self.dirName + '/degree.pickle', 'r'))
+        self.degreeCentrality = pickle.load(open(self.dirName + '/degree_centrality.pickle', 'r'))
+        self.betweenness = pickle.load(open(self.dirName + '/betweenness_centrality.pickle', 'r'))
 #         self.eigenvector = None
-        self.loadCentrality = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/load_centrality.pickle', 'r'))
-        self.closenessCentrality = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/closeness_centrality.pickle', 'r'))
+        self.loadCentrality = pickle.load(open(self.dirName + '/load_centrality.pickle', 'r'))
+#         self.closenessCentrality = pickle.load(open(self.dirName + '/closeness_centrality.pickle', 'r'))
         print 'Loaded measurements in ' + str(int(time.time() - t)) + ' seconds'
         self.didLoadMeasurements = True
         
@@ -256,7 +261,7 @@ class QueryNetwork:
         degreeCentrality = self.orderNodesByDegreeCentrality(entities)
         betweenness = self.orderNodesByBetweenness(entities)
         
-        closeness = self.orderNodesByCloseness(entities)
+#         closeness = self.orderNodesByCloseness(entities)
         #print '\nDegree centralities:\n' + str(degreeCentrality)
         #print '\n\nBetweenness centralities:\n' + str(betweenness)
         
@@ -280,10 +285,10 @@ class QueryNetwork:
         # ranking and original degree/betweenness values).
         degreeCentrality = dict(degreeCentrality)
         betweenness = dict(betweenness)
-        closeness = dict(closeness)
+#         closeness = dict(closeness)
         for entity in sortedEntities:
-            print entity[0] + ', \t\t' + str(degreeCentrality[entity[0]]) + ', \t' + str(betweenness[entity[0]]) \
-                + ', \t' + str(closeness[entity[0]])
+            print entity[0] + ', \t\t' + str(degreeCentrality[entity[0]]) + ', \t' + str(betweenness[entity[0]])
+#                 + ', \t' + str(closeness[entity[0]])
         print '\n\n'
         
         # Return a list of only the entities

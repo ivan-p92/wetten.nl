@@ -17,15 +17,12 @@ import SparqlHelper
 
 class CitesParser:
     
-    def __init__(self, inOrOut='none', makeNetwork=False, logName=False):
+    def __init__(self, inOrOut='none', makeNetwork=False, logName=False, citesIn='../Cites_in', citesOut='../Cites_out'):
         
-        # Provide the correct locations for the SPARQL result files.
-        self.citesInDir = '/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Cites_in/'
-        self.citesOutDir = '/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Cites_out/'
-        
-        # Get lists of file names.
-        self.citeInFiles = self.getCiteFiles(self.citesInDir)
-        self.citeOutFiles = self.getCiteFiles(self.citesOutDir)
+        # Get the absolute directory paths
+        self.dirName = os.path.dirname(__file__)
+        self.citesInDir = os.path.abspath(os.path.join(self.dirName, citesIn)) + '/'
+        self.citesOutDir = os.path.abspath(os.path.join(self.dirName, citesOut)) + '/'
         
         if(logName):
             self.log = "Starting...\n"
@@ -38,6 +35,10 @@ class CitesParser:
         
         self.makeNetwork = makeNetwork
         if(makeNetwork):
+            # Get lists of file names.
+            self.citeInFiles = self.getCiteFiles(self.citesInDir)
+            self.citeOutFiles = self.getCiteFiles(self.citesOutDir)
+        
             self.G = nx.Graph()
             self.workDictionary = {}
             self.humanDescription = {}
@@ -58,21 +59,21 @@ class CitesParser:
         # Save network to disk if a network was made    
         if(makeNetwork):
             t = time.ctime(time.time())
-            fileName = 'Graph ' + t
+            fileName = self.dirName + '/Graph ' + t
             nx.write_gml(self.G, fileName + '.gml')
             
             pickle.dump(self.G, open(fileName + '.pickle', 'w'))
             print '\nDumped graph at: "' + fileName + '", (.pickle and .gml)'
             
-            fileName = "Work URIs " + t + '.pickle'
+            fileName = self.dirName + "/Work URIs " + t + '.pickle'
             pickle.dump(self.workDictionary, open(fileName, 'w'))
             print '\nDumped work URIs at: "' + fileName + '"'
             
-            fileName = "bwb_titles " + t + '.pickle'
+            fileName = self.dirName + "/bwb_titles " + t + '.pickle'
             pickle.dump(self.bwbTitles, open(fileName, 'w'))
             print '\nDumped BWB titles at: "' + fileName + '"'
             
-            fileName = "human_descriptions " + t + '.pickle'
+            fileName = self.dirName + "/human_descriptions " + t + '.pickle'
             pickle.dump(self.humanDescription, open(fileName, 'w'))
             print '\nDumped human entity descriptions at: "' + fileName + '"'
             
@@ -94,7 +95,7 @@ class CitesParser:
         return files
     
     def writeLog(self):
-        fileName = self.logName + time.ctime(time.time()) + ".txt"
+        fileName = self.dirName + '/' + self.logName + time.ctime(time.time()) + ".txt"
         logFile = open(fileName, 'w')
         logFile.write(self.log)
         logFile.close()
@@ -351,8 +352,8 @@ class CitesParser:
         if re.search('BWBR\d{7}$', citation):
             # If the cited entity is an entire BWB, then the entity
             # is empty.
-            entity = ''    
-        if citation.find('/bijlage/') > -1:
+            entity = ''
+        elif citation.find('/bijlage/') > -1:
             entity = self.handleBijlage(citation)
         elif citation.find('/titeldeel/') > -1:
             entity = self.handleTiteldeel(citation)
@@ -376,6 +377,9 @@ class CitesParser:
             entity = self.handleDeel(citation)
         elif citation.find('/wijzig-artikel/') > -1:
             entity = self.handleWijzigArtikel(citation)
+        elif re.search('BWBR\d{7}/nl/', citation):
+            # If this is an expression with only BWB, entity is empty
+            entity = ''        
         
         return entity
     

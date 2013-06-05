@@ -15,6 +15,7 @@ import urllib2
 import pickle
 import re
 import datetime
+from os import path
 
 class SparqlHelper:
     
@@ -24,19 +25,23 @@ class SparqlHelper:
                        ' april ', ' mei ', ' juni ', ' juli ',
                        ' augustus ', ' september ', ' oktober ',
                        ' november ', ' december ']
+        self.dirName = path.dirname(__file__)
     
     def loadWorkDictionary(self):
-        self.workDictionary = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/works.pickle', 'r'))
+        self.workDictionary = pickle.load(open(self.dirName + '/works.pickle', 'r'))
     
-    def getLatestDocForEntity(self, entity):
+    def getBestDocForEntity(self, entity, dateString):
         """
-        Returns the latest link to doc.metalex.eu/doc/<document> for the given work URI,
+        Returns the best link to doc.metalex.eu/doc/<document> for the given work URI,
         where <document> is determined by the expression for the work URI for the given
-        entity description.
-        Note: only retrieves latest doc and only for entities that are in the network.
+        entity description. The returned expression is the latest valid one for the given date.
+        Note: the expression itself isn't returned, but it can be extracted from the returnd dictionary
         
-        @param work: the entity description
-        @return: string containing the latest expression
+        Note: only works for entities that are in the network.
+        
+        @param work: the entity description.
+        @param dateString: the date to determine which version to take.
+        @return: dictionary as returned by bestExpressoinForWorkAndDate
         """
         if not self.workDictionary:
             self.loadWorkDictionary()
@@ -44,17 +49,11 @@ class SparqlHelper:
         # Get work URI
         work = self.workDictionary[entity][0]
         
-        # Get the latest expression
-        expression =  self.getExpressionsForWork(work)[-1]
-        
-        # Replace /id/ by /doc/ and add /data.xml to the end
-        doc = re.sub('eu/id/', 'eu/doc/', expression) + '/data.xml'
-        
-        return doc       
+        # Get the best expression
+        dateData =  self.bestExpressionForWorkAndDate(work, dateString)
+
+        return dateData       
     
-    def getLatestExpressionForWork(self, work):
-        return self.getExpressionsForWork(work)[-1]
-        
     def getExpressionsForWork(self, work):
         # Create sparql query
         query = 'PREFIX mo: <http://www.metalex.eu/schema/1.0#>SELECT DISTINCT * WHERE {?e mo:realizes <' + \
@@ -92,12 +91,8 @@ class SparqlHelper:
         """
             
         work = 'http://doc.metalex.eu/id/' + bwb
-        expressions = self.getExpressionsForWork(work)
-        # If there are no expressions, return False
-        if not expressions:
-            return False
-        
-        latestExpression = expressions[-1]
+        latestExpression = self.latestExpressionForWork(work)
+        print '\n\nLatest expression: ' + latestExpression + '\n\n'
         title = self.getTitleForExpression(latestExpression)
         
         # Convert the metalex expression to /wetten/doc/ expression
@@ -146,6 +141,23 @@ class SparqlHelper:
         """
         return re.sub('/id/', '/doc/', idExpression) + '/data.xml'
     
+    def wettenDocsForIds(self, idExpressions):
+        docs = []
+        for idExpression in idExpressions:
+            docs += [self.wettenDocForId(idExpression)]
+        
+        return docs
+    
+    def wettenDocForId(self, idExpression):
+        """
+        Given an expression of the form doc.metalex.eu/id/<expression>,
+        returns /wetten/doc/<expression/data.xml
+        
+        @param idExpression: normal metalex expression URI
+        @return: URL for own website
+        """
+        return '/wetten/doc/' + re.sub('http://doc.metalex.eu/id/', '', idExpression) + '/data.xml'
+    
     def getCitedWorkForReference(self, reference):
         """
         Given a reference (both intref and extref), fetches first matching
@@ -171,9 +183,10 @@ class SparqlHelper:
         citedWork = binding.getElementsByTagName('uri')[0].firstChild.nodeValue
         return citedWork
     
-    def getLatestCitedExpressionForReference(self, reference):
+    def getBestCitedExpressionForReference(self, reference, dateString):
         work = self.getCitedWorkForReference(reference)
-        return self.getLatestExpressionForWork(work)
+        dateData = self.bestExpressionForWorkAndDate(work, dateString)
+        return dateData
     
     def datesForExpressions(self, expressions):
         """
@@ -357,7 +370,58 @@ class SparqlHelper:
         # Only keep the sorted date strings
         sortedDates = [d[1] for d in dateTuples]
         return {'dates':sortedDates, 'expressions':expressionDict}
+    
+    def bestExpressionForWorkAndDate(self, work, dateString):
+        """
+        Given a work URI gets all expressions for that work
+        but only returns the first expression which date is
+        equal or older than the given date. Also returns all
+        expressions sorted by date.
         
+        @param work: work level URI.
+        @param dateString: date string in YYYY-mm-dd format.
+        @return: dictionary with three items: 
+            bestDate: Dutch date string (used as key in expressions below).
+            dates: Dutch date strings sorted in list.
+            expressions: expressions with Dutch date strings as keys.
+        """
+        currentDate = datetime.datetime.strptime(dateString, '%Y-%m-%d').date()
+        allExpressions = self.getExpressionsForWork(work)
+        docExpressions = self.getDocsForIds(allExpressions)
+        
+        dates = []
+        expressionDict = {}
+        for expression in docExpressions:
+            dateTuple = self.dateForExpression(expression)
+            expressionDict[dateTuple[1]] = expression
+            dates += [dateTuple]
+            
+        dates.sort(key=lambda x:x[0], reverse=True)
+        
+        # If current date is older than eldest date in dates, take the last one
+        if currentDate <= dates[-1][0]:
+            bestDate = dates[-1][1]
+        else:
+            # Else loop through the dates, starting at most recent. Break at first
+            # date equal or prior to currentDate
+            for dateTuple in dates:
+                if dateTuple[0] <= currentDate:
+                    bestDate = dateTuple[1]
+                    break
+                
+        sortedDates = [d[1] for d in dates]        
+        return {'bestDate': bestDate,
+                'dates': sortedDates,
+                'expressions': expressionDict}
+        
+    def latestExpressionForWork(self, work):
+        """
+        Returns true latest expression for given work.
+        """
+        expressions = self.getExpressionsForWork(work)
+        dates = self.datesForExpressions(expressions)
+        return dates['expressions'][dates['dates'][0]]       
+
             
 def main():
     sh = SparqlHelper()

@@ -1,0 +1,16 @@
+{% load wetten_extras %}
+
+{% for date in dates %}
+
+    {% if date == current %}
+        <div class="d_version skip">
+                {{ date }} – getoonde versie
+        </div>
+    {% else %}
+        <div class="d_version" expression="{{ expressions|get:date }}" title="Toon versie (zelfde scherm)">
+                {{ date }}
+        </div>
+
+    {% endif %}
+
+{% endfor %}

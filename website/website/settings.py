@@ -1,3 +1,7 @@
+# Check for version
+from django import VERSION as DJANGO_VERSION
+assert (1,5,1, 'final', 0) == DJANGO_VERSION
+
 # Django settings for website project.
 
 DEBUG = True
