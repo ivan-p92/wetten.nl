@@ -361,7 +361,9 @@ class SparqlHelper:
         hashesExpressionsAndDates[hashURI] = (docExpression, dateTuple)
         
         # Make dictionary of dateString:expression pairs.
-        expressionDict = {hashesExpressionsAndDates[key][1][1]:hashesExpressionsAndDates[key][0] for key in hashesExpressionsAndDates}
+        expressionDict = {}
+        for key in hashesExpressionsAndDates:
+			expressionDict[hashesExpressionsAndDates[key][1][1]] = hashesExpressionsAndDates[key][0]
         
         # Take the date tuples and sort them
         dateTuples = [hashesExpressionsAndDates[key][1] for key in hashesExpressionsAndDates]

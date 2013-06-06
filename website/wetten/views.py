@@ -25,7 +25,7 @@ def index(request):
 def doc(request, document):
     citesParser = CP.CitesParser();
     sparqlHelper = sparql.SparqlHelper()
-    humanDescriptions = pickle.load(open('../human_descriptions.pickle', 'r'))
+    humanDescriptions = pickle.load(open(wettenDir + 'human_descriptions.pickle', 'r'))
     # List of BWB's in the subset
     bwbDocuments = ['BWBR0002226', 
                     'BWBR0002227', 
@@ -83,8 +83,8 @@ def doc(request, document):
 
 def related(request):
     parser = CP.CitesParser()
-    human_descriptions = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/human_descriptions.pickle'))
-    bwb_titles = pickle.load(open('/Users/Ivan/Documents/Beta-gamma/KI jaar 2/Afstudeerproject/Project/Python/wetten.nl/bwb_titles.pickle'))
+    human_descriptions = pickle.load(open(wettenDir + 'human_descriptions.pickle'))
+    bwb_titles = pickle.load(open(wettenDir + 'bwb_titles.pickle'))
     
     entity = request.GET.get('entity')
     entityDescriptionData = parser.entityDescription(entity, True)
