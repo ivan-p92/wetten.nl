@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# Add files to path
+import os.path as ospath
+import sys.path as syspath
+viewsDir = ospath.dirname(__file__)
+wettenDir = ospath.abspath(ospath.join(viewsDir, '../../')) + '/'
+syspath.append(wettenDir)
+
 from django.http import HttpResponse
 from django.template import Context, loader
 from django.shortcuts import render, redirect
