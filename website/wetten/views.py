@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 # Add files to path
-import os.path as ospath
-import sys.path as syspath
-viewsDir = ospath.dirname(__file__)
-wettenDir = ospath.abspath(ospath.join(viewsDir, '../../')) + '/'
-syspath.append(wettenDir)
+import os
+import sys
+viewsDir = os.path.dirname(__file__)
+wettenDir = os.path.abspath(os.path.join(viewsDir, '../../')) + '/'
+sys.path.append(wettenDir)
 
 from django.http import HttpResponse
 from django.template import Context, loader
