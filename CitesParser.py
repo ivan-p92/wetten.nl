@@ -39,7 +39,7 @@ class CitesParser:
             self.citeInFiles = self.getCiteFiles(self.citesInDir)
             self.citeOutFiles = self.getCiteFiles(self.citesOutDir)
         
-            self.G = nx.Graph()
+            self.G = nx.DiGraph()
             self.workDictionary = {}
             self.humanDescription = {}
             self.bwbTitles = {}

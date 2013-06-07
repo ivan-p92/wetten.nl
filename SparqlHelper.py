@@ -91,8 +91,12 @@ class SparqlHelper:
         """
             
         work = 'http://doc.metalex.eu/id/' + bwb
+#         print '\nWork: '+ work
         latestExpression = self.latestExpressionForWork(work)
-        print '\n\nLatest expression: ' + latestExpression + '\n\n'
+        # No expression
+        if not latestExpression:
+            return False
+#         print '\n\nLatest expression: ' + latestExpression + '\n\n'
         title = self.getTitleForExpression(latestExpression)
         
         # Convert the metalex expression to /wetten/doc/ expression
@@ -363,7 +367,7 @@ class SparqlHelper:
         # Make dictionary of dateString:expression pairs.
         expressionDict = {}
         for key in hashesExpressionsAndDates:
-			expressionDict[hashesExpressionsAndDates[key][1][1]] = hashesExpressionsAndDates[key][0]
+            expressionDict[hashesExpressionsAndDates[key][1][1]] = hashesExpressionsAndDates[key][0]
         
         # Take the date tuples and sort them
         dateTuples = [hashesExpressionsAndDates[key][1] for key in hashesExpressionsAndDates]
@@ -421,8 +425,12 @@ class SparqlHelper:
         Returns true latest expression for given work.
         """
         expressions = self.getExpressionsForWork(work)
-        dates = self.datesForExpressions(expressions)
-        return dates['expressions'][dates['dates'][0]]       
+        # No expressions, return false
+        if not expressions:
+            return False
+        else:
+            dates = self.datesForExpressions(expressions)
+            return dates['expressions'][dates['dates'][0]]       
 
             
 def main():

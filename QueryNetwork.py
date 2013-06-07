@@ -31,6 +31,7 @@ class QueryNetwork:
         print 'Graph loading time: ' + str(int(time.time() - t)) + ' seconds'
 
         self.degree = None
+        self.inDegree = None
         self.degreeCentrality = None
         self.betweenness = None
         self.eigenvector = None
@@ -60,6 +61,17 @@ class QueryNetwork:
         print 'Degree calculation time: ' + str(int(time.time() - t)) + ' seconds'
         pickle.dump(self.degree, open(self.dirName + '/degree.pickle', 'w'))
         
+    def calcAndPickleInDegree(self):
+        """
+        Calculates in-degree for all nodes in the network and saves the
+        resulting dictionary.
+        """
+        t = time.time()
+        print '\nCalculating in-degree...'
+        self.inDegree = self.G.in_degree(self.G.nodes())
+        print 'Degree centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
+        pickle.dump(self.inDegree, open(self.dirName + '/in_degree.pickle', 'w'))
+        
     def calcAndPickleDegreeCentrality(self):
         """
         Calculates the degree centrality for all nodes in the network and
@@ -76,9 +88,11 @@ class QueryNetwork:
         Calculates the betweenness centrality for all nodes in the network and
         saves the resulting dictionary to the hard drive.
         """
+        # Convert the DiGraph to normal graph
+        G = self.G.to_undirected()
         t = time.time()
         print '\nCalculating betweenness centrality...'
-        self.betweenness = nx.betweenness_centrality(self.G)
+        self.betweenness = nx.betweenness_centrality(G)
         print 'Betweenness centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
         pickle.dump(self.betweenness, open(self.dirName + '/betweenness_centrality.pickle', 'w'))
         
@@ -90,7 +104,7 @@ class QueryNetwork:
         """
         t = time.time()
         print '\nCalculating eigenvector centrality...'
-        self.eigenvector = nx.eigenvector_centrality(self.G, max_iter=1000)
+        self.eigenvector = nx.eigenvector_centrality(self.G)
         print 'Eigenvector centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
         pickle.dump(self.eigenvector, open(self.dirName + '/eigenvector_centrality.pickle', 'w'))
         
@@ -100,9 +114,11 @@ class QueryNetwork:
         saves the resulting dictionary to the hard drive.
         Note: very similar to betweenness centrality
         """
+        # Convert the DiGraph to normal graph
+        G = self.G.to_undirected()
         t = time.time()
         print '\nCalculating load centrality...'
-        self.loadCentrality = nx.load_centrality(self.G)
+        self.loadCentrality = nx.load_centrality(G)
         print 'Load centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
         pickle.dump(self.loadCentrality, open(self.dirName + '/load_centrality.pickle', 'w'))
         
@@ -111,18 +127,21 @@ class QueryNetwork:
         Calculates the closeness centrality for all nodes in the network and
         saves the resulting dictionary to the hard drive.
         """
+        # Convert the DiGraph to normal graph
+        G = self.G.to_undirected()
         t = time.time()
         print '\nCalculating closeness centrality...'
-        self.closenessCentrality = nx.closeness_centrality(self.G)
+        self.closenessCentrality = nx.closeness_centrality(G)
         print 'Closeness centrality calculation time: ' + str(int(time.time() - t)) + ' seconds'
         pickle.dump(self.closenessCentrality, open(self.dirName + '/closeness_centrality.pickle', 'w'))
     
     def calcAndPickleAll(self):
-        self.calcAndPickleDegree()
+#         self.calcAndPickleDegree()
+        self.calcAndPickleInDegree()
         self.calcAndPickleDegreeCentrality()
         self.calcAndPickleBetweenness()
 #         self.calcAndPickleClosenessCentrality()
-        self.calcAndPickleLoadCentrality()
+#         self.calcAndPickleLoadCentrality()
 #         self.calcAndPickleEigenvector()
         print '\nCalculated and pickled all..'
     
@@ -133,11 +152,12 @@ class QueryNetwork:
         Note: doesn't perform existence check, will terminate if files don't exist
         """
         t = time.time()
-        self.degree = pickle.load(open(self.dirName + '/degree.pickle', 'r'))
+#         self.degree = pickle.load(open(self.dirName + '/degree.pickle', 'r'))
+        self.inDegree = pickle.load(open(self.dirName + '/in_degree.pickle', 'r'))
         self.degreeCentrality = pickle.load(open(self.dirName + '/degree_centrality.pickle', 'r'))
         self.betweenness = pickle.load(open(self.dirName + '/betweenness_centrality.pickle', 'r'))
 #         self.eigenvector = None
-        self.loadCentrality = pickle.load(open(self.dirName + '/load_centrality.pickle', 'r'))
+#         self.loadCentrality = pickle.load(open(self.dirName + '/load_centrality.pickle', 'r'))
 #         self.closenessCentrality = pickle.load(open(self.dirName + '/closeness_centrality.pickle', 'r'))
         print 'Loaded measurements in ' + str(int(time.time() - t)) + ' seconds'
         self.didLoadMeasurements = True
@@ -155,11 +175,13 @@ class QueryNetwork:
     
     def getNeighboursForEntity(self, entity):
         """
-        Simply returns neigbours for given node (entity)
+        Returns neigbours for given node (entity), set of predecessors + successors
         @param entity: the node
         @return: list of nodes
         """
-        return self.G.neighbors(entity)
+        predecessors = self.G.predecessors(entity)
+        successors = self.G.successors(entity)
+        return list(set(predecessors + successors))
     
     def getRelatedEntities(self, entity):
         """
