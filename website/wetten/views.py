@@ -89,7 +89,11 @@ def related(request):
     entity = request.GET.get('entity')
     entityDescriptionData = parser.entityDescription(entity, True)
     entityDescription = entityDescriptionData[0]
-    humanDescription = parser.humanDescriptionForEntity(entityDescriptionData[2])
+    if entityDescriptionData[2]:
+        humanDescription = parser.humanDescriptionForEntity(entityDescriptionData[2])
+    else:
+        humanDescription = entityDescriptionData[1]
+        
     if entityDescription:
         query = QN.QueryNetwork()
         

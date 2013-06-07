@@ -10,9 +10,26 @@ $('root').bind('click', function(e){
 	// Get "about" value from clicked element. This URI is used to determine its
 	// name in the citation network and retrieve the desired information.
 	var about = target.attr("about");
+	
 	if (about) {
-		getRelated(about);
-		getVersions(target, target, 1);
+        // Check if user clicked on title of law or somewhere in considerans
+        if (about.indexOf("intitule") != -1 || 
+            about.indexOf("considerans") != -1 ||
+            about.indexOf("wij") != -1) {
+            console.log('Het is intitule of considerans');
+            var bwbExpr = new RegExp("http://doc.metalex.eu/id/BWBR\\d{7}");
+            var bwbMatch = bwbExpr.exec(about);
+            console.log(bwbMatch);
+            if (bwbMatch) {
+                about = bwbMatch[0];
+            }
+            getRelated(about);
+            $('#timetravel').html('Zie versie-informatie boven geraadpleegde wet.');
+	    }
+	    else {
+            getRelated(about);
+            getVersions(target, target, 1);
+        }
 	}
 	else {
 		console.log('Undefined');
