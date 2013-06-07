@@ -20,7 +20,7 @@ import re
 import pickle
 
 def index(request):
-    return HttpResponse("Gebruiksinfo")
+    return redirect('/wetten/doc/BWBR0011353')
 
 def doc(request, document):
     citesParser = CP.CitesParser();
