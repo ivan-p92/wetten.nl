@@ -121,7 +121,9 @@ $('.maxResultSetter').bind('click', function(e) {
         $('#maxResultsInfo').html('Aantal resultaten (nu: ' + maxResults + ')');
     }
     loadEntitiesForBWB();
-    getRelated(latestEntity);
+    if (latestEntity != '') {
+        getRelated(latestEntity);
+    }
 });
 
 checkMaxResultsCookie();
