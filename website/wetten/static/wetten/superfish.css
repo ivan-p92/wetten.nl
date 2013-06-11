@@ -37,6 +37,7 @@ See: http://users.tpg.com.au/j_birch/plugins/superfish/
 .sf-menu {
     float: left;
     margin-bottom: 1em;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
 }
 .sf-menu ul {
     box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
