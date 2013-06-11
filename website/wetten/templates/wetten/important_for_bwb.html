@@ -1,0 +1,9 @@
+{% load wetten_extras %}
+
+{% if entities %}
+    {% for entity in entities %}
+        <div title="Klik om te lezen" class="result" entity="{{ entity }}"><span>{{ descriptions|get:entity }}</span></div>
+    {% endfor %}
+{% else %}
+    <p>Geen bronnen in citatienetwerk voor opgevraagde wet.</p>
+{% endif %}

@@ -34,7 +34,7 @@ body {
     min-width: 300px;
     position:  fixed;
     left: 800px;
-    top: 23px;
+    top: 57px;
     font-family: verdana;
     font-size: 80%;
 }
@@ -56,6 +56,7 @@ body {
 
 #extra_info {
     padding: 5px;
+    padding-top: 0px;
 }
 
 #result_details {
@@ -97,9 +98,9 @@ body {
     z-index: 1000;
 }
 
-#important_for_bwb, #internal, #external, #timetravel {
+.important_for_bwb, .internal, .external, #timetravel {
     width: auto;
-    height: 170px;
+    height: 162px;
     padding: 1px;
     overflow-y: auto;
     background-color: #FAD57D;
@@ -108,10 +109,43 @@ body {
     box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.4);
 }
 
-#menubar_container{
+#menubar_container {
     position: fixed;
     left: 20px;
     z-index: 800;
+}
+
+#sort_methods {
+    position: fixed;
+    left: 800px;
+    width: 700px;
+    min-width: 300px;
+    max-width: 700px;
+    padding: 0px;
+    font-size: 90%;
+}
+
+#sort_methods div {
+    width: 33%;
+    background-color: #FAD57D;
+    float: left;
+    text-align: center;
+    padding-top: 8px;
+    padding-bottom: 7px;
+}
+
+#sort_methods div:hover {
+    background-color: #FFF2C7;
+    cursor: pointer;
+}
+
+#method1 {
+    border-left: 1px solid #FFF2C7;
+    border-right: 1px solid #FFF2C7;
+}
+
+.selected_sort {
+    background-color: #FFF2C7 !important;
 }
 
 .result, .selected_result, .bwb_link, .f_version, .d_version, .nb {

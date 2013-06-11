@@ -25,7 +25,6 @@ def index(request):
 def doc(request, document):
     citesParser = CP.CitesParser();
     sparqlHelper = sparql.SparqlHelper()
-    humanDescriptions = pickle.load(open(wettenDir + 'human_descriptions.pickle', 'r'))
     # List of BWB's in the subset
     bwbDocuments = ['BWBR0002226', 
                     'BWBR0002227', 
@@ -47,10 +46,6 @@ def doc(request, document):
     else:
         metalexData = urllib2.urlopen('http://doc.metalex.eu/doc/' + document)
     metalexXML = metalexData.read()
-    bwb = re.findall('BWBR\d{7}', document)[0]
-    
-    query = QN.QueryNetwork()
-    entities = query.sortEntitiesForBWB(bwb)
     
     # Get all versions for document
     work = 'http://doc.metalex.eu/id/' + re.sub('/nl/.*','', document)
@@ -71,15 +66,42 @@ def doc(request, document):
     
     
     context = {'metalexXML': metalexXML, 
-               'entities': entities, 
                'bwb_links': bwb_links, 
-               'descriptions': humanDescriptions,
                'title': pageTitle,
                'expressions': dates['expressions'],
                'dates': dates['dates'],
                'current': currentDateTuple[1],
                'dateInfo': dateInfo, }
+    
     return render(request, 'wetten/doc.html', context)
+
+def bwb(request):
+    referer = request.META.get('HTTP_REFERER')
+    maxResults = int(request.GET.get('maxResults'))
+    bwb = re.search('BWBR\d{7}', referer).group(0)
+    query = QN.QueryNetwork()
+    sortedData = query.sortEntitiesForBWB(bwb, maxResults)
+    human_descriptions = pickle.load(open(wettenDir + 'human_descriptions.pickle', 'r'))
+
+    # Render div's for in degree
+    template = loader.get_template('wetten/important_for_bwb.html')
+    context = Context({'entities': sortedData['inDegree'],
+                       'descriptions': human_descriptions,})
+    inDegree = template.render(context)
+    
+    # Render div's for degree centrality
+    context = Context({'entities': sortedData['degreeCentrality'],
+                       'descriptions': human_descriptions,})
+    degreeCentrality = template.render(context)
+    
+    # Render div's for betweenness centrality
+    context = Context({'entities': sortedData['betweenness'],
+                       'descriptions': human_descriptions,})
+    betweenness = template.render(context)
+    
+    return HttpResponse(json.dumps({'inDegree': inDegree, 
+                                    'degreeCentrality': degreeCentrality,
+                                    'betweenness': betweenness,}))
 
 def related(request):
     parser = CP.CitesParser()
@@ -87,6 +109,7 @@ def related(request):
     bwb_titles = pickle.load(open(wettenDir + 'bwb_titles.pickle'))
     
     entity = request.GET.get('entity')
+    maxResults = int(request.GET.get('maxResults'))
     entityDescriptionData = parser.entityDescription(entity, True)
     entityDescription = entityDescriptionData[0]
     if entityDescriptionData[2]:
@@ -100,20 +123,46 @@ def related(request):
         if not query.entityIsInGraph(entityDescription):
             return HttpResponse(json.dumps({'success': False, 'current_selection': humanDescription,}))
         
-        relatedEntities = query.sortRelatedEntities(entityDescription)  
+        relatedEntities = query.sortRelatedEntities(entityDescription, maxResults)  
         
-        # Render div's for internal sources
+        internal = {}
+        external = {}
+        # Render div's for internal sources for in-degree
         template = loader.get_template('wetten/related.html')
-        context = Context({'entities': relatedEntities['internal'],
+        context = Context({'entities': relatedEntities['inDegree']['internal'],
                            'descriptions': human_descriptions,
                            'bwb_titles': False,})
-        internal = template.render(context)
+        internal['inDegree'] = template.render(context)
         
-        # Render div's for external sources
-        context = Context({'entities': relatedEntities['external'],
+        # Render div's for internal sources for degree centrality
+        context = Context({'entities': relatedEntities['degreeCentrality']['internal'],
+                           'descriptions': human_descriptions,
+                           'bwb_titles': False,})
+        internal['degreeCentrality'] = template.render(context)
+        
+        # Render div's for internal sources for betweenness centrality
+        context = Context({'entities': relatedEntities['betweenness']['internal'],
+                           'descriptions': human_descriptions,
+                           'bwb_titles': False,})
+        internal['betweenness'] = template.render(context)
+        
+        # Render div's for external sources for in-degree
+        context = Context({'entities': relatedEntities['inDegree']['external'],
                            'descriptions': human_descriptions,
                            'bwb_titles': bwb_titles})
-        external = template.render(context)
+        external['inDegree'] = template.render(context)
+        
+        # Render div's for external sources for degree centrality
+        context = Context({'entities': relatedEntities['degreeCentrality']['external'],
+                           'descriptions': human_descriptions,
+                           'bwb_titles': bwb_titles})
+        external['degreeCentrality'] = template.render(context)
+        
+        # Render div's for external sources for betweenness centrality
+        context = Context({'entities': relatedEntities['betweenness']['external'],
+                           'descriptions': human_descriptions,
+                           'bwb_titles': bwb_titles})
+        external['betweenness'] = template.render(context)
         
         data = {'success': True,
                'internal': internal,

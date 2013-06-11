@@ -1,4 +1,5 @@
-var versionScope = 'alinea'
+var versionScope = 'alinea';
+var latestEntity = '';
 
 // Do necessary bindings.
 $(document).ready( function() {
@@ -23,10 +24,12 @@ $('root').bind('click', function(e){
             if (bwbMatch) {
                 about = bwbMatch[0];
             }
+            latestEntity = about;
             getRelated(about);
             $('#timetravel').html('Zie versie-informatie boven geraadpleegde wet.');
 	    }
 	    else {
+	        latestEntity = about;
             getRelated(about);
             getVersions(target, target, 1);
         }
@@ -34,6 +37,30 @@ $('root').bind('click', function(e){
 	else {
 		console.log('Undefined');
 	}
+});
+
+// Bind the switching of sorting method.
+$('#sort_methods div').bind('click', function(e) {
+    var target = $(e.target);
+    $('#sort_methods div').removeClass('selected_sort');
+    switch (target.attr('id')) {
+        case "method0":
+            target.addClass('selected_sort');
+            showSortMethod(0);
+            break;
+        case "method1":
+            target.addClass('selected_sort');
+            showSortMethod(1);
+            break;
+        case "method2":
+            target.addClass('selected_sort');
+            showSortMethod(2);
+            break;
+        default:
+            $('#method0').addClass('selected_sort');
+            showSortMethod(0);
+            break;
+    }
 });
 
 $('#versions_popup').bind('click', function() {
@@ -82,7 +109,79 @@ $(window).on('resize', function(){
 // Set the width according to browser window after document is ready
 setWidth()
 
+// Bind click on maximum number of results option
+$('.maxResultSetter').bind('click', function(e) {
+    var target = $(e.target);
+    var maxResults = target.attr('number');
+    setCookie('maxResults', maxResults, 7);
+    if (maxResults == '0') {
+        $('#maxResultsInfo').html('Aantal resultaten (nu: alle)');
+    }
+    else {
+        $('#maxResultsInfo').html('Aantal resultaten (nu: ' + maxResults + ')');
+    }
+    loadEntitiesForBWB();
+    getRelated(latestEntity);
 });
+
+checkMaxResultsCookie();
+
+// Bind hover on options menu to show latest cookie setting for maxResults
+$('#options').mouseenter(function() {
+    var maxResults = getCookie('maxResults');
+    if (maxResults == '0') {
+        $('#maxResultsInfo').html('Aantal resultaten (nu: alle)');
+    }
+    else {
+        $('#maxResultsInfo').html('Aantal resultaten (nu: ' + maxResults + ')');
+    }
+});
+
+loadEntitiesForBWB();
+
+});
+
+/////////////////////
+// End of binds
+/////////////////////
+
+
+// Load entities for bwb
+function loadEntitiesForBWB() {
+    var maxResults = getCookie('maxResults');
+    $('.important_for_bwb').html('<b style="color:green">Gegevens laden...</b>');
+    
+    // Perform ajax get request.
+	$.get('/wetten/bwb/', {'maxResults': maxResults}, function(data) {
+  		data = JSON.parse(data);
+  		    // Populate the views
+  			$('#imp0').html(data['inDegree']);
+  			$('#imp1').html(data['degreeCentrality']);
+  			$('#imp2').html(data['betweenness']);
+  			
+  			// Bind the new result elements to the click event.
+		    bindResults();
+	});
+}
+
+// Show results for chosen ordering
+function showSortMethod(method) {
+    $('.important_for_bwb, .internal, .external').hide();
+    switch (method) {
+        case 0:
+            $('.sort0').show();
+            break;
+        case 1:
+            $('.sort1').show();
+            break;
+        case 2:
+            $('.sort2').show();
+            break;
+        default:
+            $('.sort0').show();
+            break;
+    }
+}
 
 function setVersionScope(setting) {
     
@@ -238,7 +337,7 @@ function setWidth() {
 	var w = $(window).width();
 	
 	if (w < 1100) {
-	    $('#info_container').width(300);
+	    $('#info_container, #sort_methods').width(300);
 	    var metalex = w - 400;
 	    metalex = (metalex < 300) ? 300: metalex;
 	    var diff = 700 - metalex;
@@ -246,7 +345,7 @@ function setWidth() {
 	    $('#current_selection').width(480 - diff - 10);	    
 	    $('#root_container, #result_details').width(metalex);
 	    $('#close_button').css('left', (metalex + 35) + 'px');
-	    $('#info_container').css('left', (800-diff) + 'px');
+	    $('#info_container, #sort_methods').css('left', (800-diff) + 'px');
 	}
 	else {
 	    var info = w - 800;
@@ -255,8 +354,8 @@ function setWidth() {
         $('#current_selection').width(470);
         $('#root_container, #result_details').width(700);
         $('#close_button').css('left', '735px');
-        $('#info_container').width(info);
-        $('#info_container').css('left', '800px');
+        $('#info_container, #sort_methods').width(info);
+        $('#info_container, #sort_methods').css('left', '800px');
     }
 }
 
@@ -265,24 +364,29 @@ function getRelated(entity) {
 	console.log('Getting related for: ' + entity);
 	
 	// Show that data is being retrieved.
-	$('#internal').html('<b style="color:green">Gegevens laden...</b>');
-	$('#external').html('<b style="color:green">Gegevens laden...</b>');
+	$('.internal').html('<b style="color:green">Gegevens laden...</b>');
+	$('.external').html('<b style="color:green">Gegevens laden...</b>');
 	
+	var maxResults = getCookie('maxResults');
 	// Perform ajax get request.
-	$.get('/wetten/related/', {'entity': entity}, function(data) {
+	$.get('/wetten/related/', {'entity': entity, 'maxResults': maxResults}, function(data) {
   		data = JSON.parse(data);
   		if (data['success']) {
   		    // Populate the views
-  			$('#internal').html(data['internal']);
-  			$('#external').html(data['external']);
+  			$('.internal.sort0').html(data['internal']['inDegree']);
+  			$('.internal.sort1').html(data['internal']['degreeCentrality']);
+  			$('.internal.sort2').html(data['internal']['betweenness']);
+  			$('.external.sort0').html(data['external']['inDegree']);
+  			$('.external.sort1').html(data['external']['degreeCentrality']);
+  			$('.external.sort2').html(data['external']['betweenness']);
   			$('#current_selection').html('Selectie: ' + data['current_selection']);
   			
   			// Bind the new result elements to the click event.
 		    bindResults();
   		}
   		else {
-  			$('#internal').html('<b style="color:green">Geen citatie gegevens beschikbaar.</b>');
-	        $('#external').html('<b style="color:green">Geen citatie gegevens beschikbaar.</b>');
+  			$('.internal').html('<b style="color:green">Geen citatie gegevens beschikbaar.</b>');
+	        $('.external').html('<b style="color:green">Geen citatie gegevens beschikbaar.</b>');
             $('#current_selection').html('Selectie: ' + data['current_selection']);
   		}
 	});
@@ -424,4 +528,51 @@ function detailVersionsTimetravel() {
     $('#detail_version_picker').html('Huidige versie: zie tijdreisvenster.');
     var div = '<div class="d_version skip">Zie tijdreisvenster</div>';
     $('#detail_versions').html(div);
+}
+
+// Functions for results cookie. The cookie that stores the preferred number of results to show.
+function setCookie(c_name, value, exdays)
+{
+    var exdate = new Date();
+    exdate.setDate(exdate.getDate() + exdays);
+    var c_value = escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
+    document.cookie = c_name + "=" + c_value;
+}
+
+function getCookie(c_name)
+{
+    var c_value = document.cookie;
+    var c_start = c_value.indexOf(" " + c_name + "=");
+    if (c_start == -1)
+    {
+        c_start = c_value.indexOf(c_name + "=");
+    }
+    if (c_start == -1)
+    {
+        c_value = null;
+    }
+    else
+    {
+        c_start = c_value.indexOf("=", c_start) + 1;
+        var c_end = c_value.indexOf(";", c_start);
+        if (c_end == -1)
+        {
+            c_end = c_value.length;
+        }
+        c_value = unescape(c_value.substring(c_start,c_end));
+    }
+    return c_value;
+}
+
+function checkMaxResultsCookie()
+{
+    var maxResults = getCookie("maxResults");
+    if (maxResults != null && maxResults != "")
+    {
+        console.log('preferred number of results: ' + maxResults);
+    }
+    else
+    {
+        setCookie('maxResults', '5', 7);
+    }
 }

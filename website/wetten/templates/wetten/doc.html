@@ -25,15 +25,39 @@
 				{% endfor %}
 			</ul>
 		</li>
-		<li><a href="#">Tijdreis bereik</a>
+		<li><a href="#" id="options">Opties</a>
 			<ul>
-				<li><a href="#" title="Versies vergelijken op alineaniveau" onclick="setVersionScope('alinea')">
-						Alinea niveau
-					</a>
+				<li><a href="#">Tijdreis bereik</a>
+					<ul>
+						<li><a href="#" title="Versies vergelijken op alineaniveau" onclick="setVersionScope('alinea')">
+								Alinea niveau
+							</a>
+						</li>
+						<li><a href="#" title="Versies vergelijken op artikelniveau of hoger" onclick="setVersionScope('artikel')">
+								Artikel niveau of hoger
+							</a>
+						</li>
+					</ul>
 				</li>
-				<li><a href="#" title="Versies vergelijken op artikelniveau of hoger" onclick="setVersionScope('artikel')">
-						Artikel niveau of hoger
-					</a>
+				<li><a href="#" id="maxResultsInfo">Aantal resultaten</a>
+					<ul>
+						<li><a href="#" title="Toon maximaal 5 resultaten" number="5" class="maxResultSetter">
+							Vijf resultaten
+							</a>
+						</li>
+						<li><a href="#" title="Toon maximaal 10 resultaten" number="10" class="maxResultSetter">
+							Tien resultaten
+							</a>
+						</li>
+						<li><a href="#" title="Toon maximaal 20 resultaten" number="20" class="maxResultSetter">
+							Twintig resultaten
+							</a>
+						</li>
+						<li><a href="#" title="Toon alle resultaten" number="0" class="maxResultSetter">
+							Alle resultaten
+							</a>
+						</li>
+					</ul>
 				</li>
 			</ul>
 		</li>
@@ -48,29 +72,45 @@
 {{ metalexXML|safe }}
 </div>
 
+<div id="sort_methods">
+	<div id="method0" class="selected_sort" title="In degree">Methode 1</div>
+	<div id="method1" title="Degree centrality">Methode 2</div>
+	<div id="method2" title="Betweenness centrality">Methode 3</div>
+</div>
+
 <div id="info_container">
 	<div id="extra_info">
-	
 		<div class="info_title">Belangrijke bronnen in deze wet:</div>
-		<div id="important_for_bwb">
-
-		{% if entities %}
-			{% for entity in entities %}
-				<div title="Klik om te lezen" class="result" entity="{{ entity }}"><span>{{ descriptions|get:entity }}</span></div>
-			{% endfor %}
-		{% else %}
-			<p>Geen bronnen in citatienetwerk voor opgegeven BWB nummer.</p>
-		{% endif %}
+		<div class="important_for_bwb sort0" id="imp0">
+			Laden...
+		</div>
+		
+		<div class="important_for_bwb sort1" id="imp1" style="display:none">
+		</div>
+		
+		<div class="important_for_bwb sort2" id="imp2" style="display:none">
 		</div>
 
 		<div class="info_title">Belangrijke interne bronnen voor selectie:</div>
-		<div id="internal">
+		<div class="internal sort0">
 		Klik in ergens in het geraadpleegde document om belangrijke citerende en geciteerde documenten op te halen.
+		</div>
+		<div class="internal sort1" style="display:none">
+		Klik in ergens in het geraadpleegde document om belangrijke citerende en geciteerde documenten op te halen. 2
+		</div>
+		<div class="internal sort2" style="display:none">
+		Klik in ergens in het geraadpleegde document om belangrijke citerende en geciteerde documenten op te halen. 3
 		</div>
 
 		<div class="info_title">Belangrijke externe bronnen voor selectie:</div>
-		<div id="external">
+		<div class="external sort0">
 		Klik in ergens in het geraadpleegde document om belangrijke citerende en geciteerde documenten op te halen.
+		</div>
+		<div class="external sort1" style="display:none">
+		Klik in ergens in het geraadpleegde document om belangrijke citerende en geciteerde documenten op te halen. 2
+		</div>
+		<div class="external sort2" style="display:none">
+		Klik in ergens in het geraadpleegde document om belangrijke citerende en geciteerde documenten op te halen. 3
 		</div>
 		
 		<div class="info_title">Tijdreizen – andere versies voor selectie:</div>
