@@ -7,8 +7,8 @@ body {
 
 #current_selection {
     text-overflow: ellipsis;
-    width: 470px;
     overflow: hidden;
+    width: 100%;
     border-top: none;
     padding-top: 8px;
 }
