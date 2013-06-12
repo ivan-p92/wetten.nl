@@ -400,13 +400,17 @@ function loadReferenceContent(about) {
     $('#detail_version_picker').show();
     $('#root_container').height(350);
 
+    // Save old content in case error occurs
+    var oldContent = $('#result_details').html();
+    
     // Show that data is being loaded.
     $('#result_details').html('<b style="color:green">Gegevens laden...</b>');
 
     // Perform ajax get request.
     $.get('/wetten/reference/', {'about': about}, function(data) {
         if (data == 'error') {
-	        $('#result_details').html('<root>Er is geen versie voor dit document gevonden. NB: afdelingen, paragrafen en titeldelen kunnen helaas (nog) niet opgehaald worden.</root>');
+	        alert('Er is geen versie voor dit document gevonden.\nNB: afdelingen, paragrafen en titeldelen kunnen\nhelaas (nog) niet opgehaald worden.');
+	        $('#result_details').html(oldContent);
 	    }
 	    else {
             data = JSON.parse(data);
@@ -428,14 +432,18 @@ function showDetails(entity) {
     $('#close_button').show();
     $('#detail_version_picker').show();
 	$('#root_container').height(350);
-	
+
+    // Save old content in case error occurs
+    var oldContent = $('#result_details').html();
+    	
 	// Show that data is being loaded.
 	$('#result_details').html('<b style="color:green">Gegevens laden...</b>');
 	
 	// Perform ajax get request.
 	$.get('/wetten/relatedContent/', {'entity': entity}, function(data) {
 	    if (data == 'error') {
-	        $('#result_details').html('<root>Er is geen versie voor dit document gevonden. NB: afdelingen, paragrafen en titeldelen kunnen helaas (nog) niet opgehaald worden.</root>');
+	        alert('Er is geen versie voor dit document gevonden.\nNB: afdelingen, paragrafen en titeldelen kunnen\nhelaas (nog) niet opgehaald worden.');
+	        $('#result_details').html(oldContent);
 	    }
 	    else {
             data = JSON.parse(data);
