@@ -393,6 +393,10 @@ class SparqlHelper:
         """
         currentDate = datetime.datetime.strptime(dateString, '%Y-%m-%d').date()
         allExpressions = self.getExpressionsForWork(work)
+        # No expressions available
+        if not allExpressions:
+            return False
+        
         docExpressions = self.getDocsForIds(allExpressions)
         
         dates = []

@@ -181,6 +181,10 @@ def relatedContent(request):
     currentDate = re.search('\d\d\d\d-\d\d-\d\d', referer).group(0)
     
     dateData = sparqlHelper.getBestDocForEntity(entity, currentDate)
+    # No expression found, return error
+    if not dateData:
+        return HttpResponse('error')
+
     data = metalexAndVersions(dateData, sparqlHelper)
     
     return HttpResponse(json.dumps(data))
@@ -191,6 +195,11 @@ def reference(request):
     referer = request.META.get('HTTP_REFERER')
     currentDate = re.search('\d\d\d\d-\d\d-\d\d', referer).group(0)
     dateData = sparqlHelper.getBestCitedExpressionForReference(about, currentDate)
+    
+    # No expressions found, return error
+    if not dateData:
+        return HttpResponse('error')
+    
     data = metalexAndVersions(dateData, sparqlHelper)
     
     return HttpResponse(json.dumps(data))

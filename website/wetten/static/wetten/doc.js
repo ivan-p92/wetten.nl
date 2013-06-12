@@ -405,14 +405,19 @@ function loadReferenceContent(about) {
 
     // Perform ajax get request.
     $.get('/wetten/reference/', {'about': about}, function(data) {
-        data = JSON.parse(data);
-        $('#result_details').html(data['metalex']);
-        // Scroll to top.
-        $('#result_details').scrollTop(0);
-        $('#detail_versions').html(data['versions']);
-        $('#detail_version_picker').html(data['dateInfo']);
-        bindRefs();
-        bindDetailVersions();
+        if (data == 'error') {
+	        $('#result_details').html('<root>Er is geen versie voor dit document gevonden. NB: afdelingen, paragrafen en titeldelen kunnen helaas (nog) niet opgehaald worden.</root>');
+	    }
+	    else {
+            data = JSON.parse(data);
+            $('#result_details').html(data['metalex']);
+            // Scroll to top.
+            $('#result_details').scrollTop(0);
+            $('#detail_versions').html(data['versions']);
+            $('#detail_version_picker').html(data['dateInfo']);
+            bindRefs();
+            bindDetailVersions();
+        }
     });
 }
 
@@ -429,14 +434,19 @@ function showDetails(entity) {
 	
 	// Perform ajax get request.
 	$.get('/wetten/relatedContent/', {'entity': entity}, function(data) {
-  		data = JSON.parse(data);
-        $('#result_details').html(data['metalex']);
-        // Scroll to top.
-        $('#result_details').scrollTop(0);
-        $('#detail_versions').html(data['versions']);
-        $('#detail_version_picker').html(data['dateInfo']);
-        bindRefs();
-        bindDetailVersions();
+	    if (data == 'error') {
+	        $('#result_details').html('<root>Er is geen versie voor dit document gevonden. NB: afdelingen, paragrafen en titeldelen kunnen helaas (nog) niet opgehaald worden.</root>');
+	    }
+	    else {
+            data = JSON.parse(data);
+            $('#result_details').html(data['metalex']);
+            // Scroll to top.
+            $('#result_details').scrollTop(0);
+            $('#detail_versions').html(data['versions']);
+            $('#detail_version_picker').html(data['dateInfo']);
+            bindRefs();
+            bindDetailVersions();
+        }
 	});
 }
 
