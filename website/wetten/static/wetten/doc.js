@@ -343,7 +343,7 @@ function setWidth() {
 	    var metalex = w - 400;
 	    metalex = (metalex < 300) ? 300: metalex;
 	    var diff = 700 - metalex;
-	    $('#cs_li').width(538 - diff);
+	    $('#cs_li').width(483 - diff);
 	    $('#root_container, #result_details').width(metalex);
 	    $('#close_button').css('left', (metalex + 35) + 'px');
 	    $('#info_container, #sort_methods').css('left', (800-diff) + 'px');
@@ -351,7 +351,7 @@ function setWidth() {
 	else {
 	    var info = w - 800;
         info = (info < 300)? 300: info;
-        $('#cs_li').width(538);
+        $('#cs_li').width(483);
         $('#root_container, #result_details').width(700);
         $('#close_button').css('left', '735px');
         $('#info_container, #sort_methods').width(info);

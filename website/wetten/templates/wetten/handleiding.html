@@ -1,0 +1,366 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Gebruiksinstructies</title>
+	<style>
+		body {
+			background-color: #FFFDE8;
+			text-align: justify;
+		}
+		
+		#content {
+			background-color: #FFF2C7;
+			margin-left: auto;
+			margin-right: auto;
+			width: 800px;
+			padding: 15px;
+			border-radius: 1px;
+			font-family: verdana, arial;
+			line-height: 1.3;
+			box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+		}
+		
+		h3 {
+			margin-top: 40px;
+			width: 100%;
+			border-bottom: 1px solid;
+		}
+		
+		h4 {
+            margin-top: 30px;
+            margin-bottom: 0px;
+        }
+		
+		h4 span {
+		    border-bottom: 1px dashed;
+		}
+		
+		.code {
+			font-family: "courier new", courier;
+			line-height: 1;
+		}
+		
+		ul {
+			padding-left: 20px;
+		}
+		
+		ol {
+			padding-right: 20px;
+		}
+		
+		li {
+			margin-bottom: 5px;
+		}
+		
+		a, a:visited {
+			color: #FC7708;
+			text-decoration: none;
+		}
+		
+		a:hover {
+			text-decoration: underline;
+		}
+		
+		img {
+		    width: 100%;
+		    box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.4);
+		}
+		
+	</style>
+</head>
+
+<body>
+<div id="content">
+<h2>Handleiding alternatieve interface wetten.nl</h2>
+<h3>Over de applicatie</h3>
+    <p>
+    De <a href="/wetten" title="Ga naar de applicatie" target="_blank">webapplicatie</a>
+    is gemaakt voor het bachelor afstudeerproject kunstmatige intelligentie (UvA) en heeft als doel een slimmere
+    interface te bieden voor de Nederlandse wet- en regelgeving zoals beschikbaar op 
+    <a href="http://wetten.overheid.nl" target="_blank">wetten.nl</a>.
+    De applicatie gebruikt hierbij de data van de <a href="http://doc.metalex.eu" target="_blank">Metalex server</a>.
+    Gebruikmakend van deze data is voor een zestal wetten (uit het belastingrecht) het citatienetwerk
+    opgebouwd. Dit wordt gebruikt om voor een geselecteerd artikel belangrijke citerende of 
+    geciteerde bronnen weer te geven.
+    Verder kunnen eerdere en/of latere versies van geraadpleegde documenten naast elkaar
+    weergegeven worden. De verscheidene functies komen in deze handleiding aan bod.
+    </p>
+    
+    <p>
+    <b>Belangrijk:</b> als u de applicatie uittest voor de evaluatie, besteed dan a.u.b.
+    goed aandacht aan de punten genoemd bij <a href="#evaluatie">evaluatie</a>. Heeft u
+    vragen of ondervindt u problemen, mail gerust naar ivan.plantevin [at] student.uva.nl.
+    Graag ook uw bevindingen (evaluatie) naar dit adres sturen. Alvast bedankt!
+    </p>
+    
+<h3>Systeemeisen</h3>
+    <p>
+    De webapplicatie is in html5 geschreven. Alle recente versies van Google Chrome,
+    Safari, Firefox en Internet Explorer zouden prima moeten werken. Het gebruik van Internet
+    Explorer wordt echter afgeraden, omdat de applicatie hier niet op getest is.</p>
+    <p><b>Belangrijk:</b> de applicatie heeft javascript nodig. Schakel javascript dus niet
+    uit.
+    </p>
+    
+<h3>Het startscherm</h3>
+    <p>
+    Hieronder vindt u een schermafbeelding van de applicatie nadat een wet geladen is
+    (in dit geval 'Wet inkomstenbelasting 2001', versie van 15-01-2013). Verschillende onderdelen
+    zijn van letters voorzien. In het vervolg zal naar deze letters verwezen worden wanneer
+    de betreffende vensters besproken worden.
+    </p>
+    <img src="{% static 'wetten/help1.png' %}" alt="Screenshot startscherm">
+    
+    <h4><span>Wetten opvragen</span></h4>
+        <p>
+        De applicatie wordt momenteel op justinian.leibnizcenter.org gehost. Voegt u aan dit adres "/wetten"
+        toe dan wordt de applicatie geladen voor de nieuwste versie van de Wet Inkomstenbelasting 2001.
+        U kunt daarnaast elke gewenste wet in de applicatie laden door een BWB nummer, bijvoorbeeld
+        BWBR0011353, als volgt op te geven: /wetten/doc/BWBR0011353. Het volledige adres wordt dan
+        <a href="http://justinian.leibnizcenter.org/wetten/doc/BWBR0011353" target="_blank">
+        justinian.leibnizcenter.org/wetten/doc/BWBR0011353</a>. Vervolgens wordt de nieuwste versie
+        van dit document opgehaald. Kleine letters kunnen ook gebruikt worden (b.v. bwbr0011353).
+        </p>
+        <p>
+        Verder kunnen achter /wetten/doc/ ook alle documenten opgegeven worden die door doc.metalex.eu/doc/
+        geaccepteerd worden, bijvoorbeeld:
+        <a href="http://justinian.leibnizcenter.org/wetten/doc/BWBR0011353/hoofdstuk/1/artikel/1.7/nl/2013-01-15/data.xml" target="_blank"
+        title="justinian.leibnizcenter.org/wetten/doc/BWBR0011353/hoofdstuk/1/artikel/1.7/nl/2013-01-15/data.xml">
+        BWBR0011353/hoofdstuk/1/artikel/1.7/nl/2013-01-15/data.xml</a>.
+        </p>
+        
+    <h4><span>Inhoud van het hoofddocument</span></h4>
+        <p>
+        Het document dat opgevraagd is via /wetten/doc/ wordt het hoofddocument genoemd.
+        De inhoud van het hoofddocument wordt getoond in <u>venster B</u>. Referenties
+        naar andere bronnen (intern en extern) kunnen aangeklikt worden waarna <u>venster B</u>
+        kleiner gemaakt wordt en het gerefereerde document eronder weergegeven wordt in een split screen (zie
+        <u>venster E</u> in <a href="#help2">de tweede schermafbeelding</a>). Klikt u op andere
+        tekst dan referenties dan zal meer informatie getoond worden over het wetselement waar
+        de tekst toe behoort. Hierover meer in de sectie <a href="#extra_info">Extra informatie</a>.
+        </p>
+    
+    <h4><span>Het hoofdmenu</span></h4>
+        <p>
+        In <u>venster A</u> zijn twee menu's. Het bovenste hiervan is het hoofdmenu. Onder
+        <u>Wetten</u> vindt u verwijzingen naar de zes wetten waarvan voor deze applicatie het
+        citatienetwerk geanalyseerd is. Onder <u>Opties</u> kunt u een tweetal opties instellen:
+        <i>Tijdreis bereik</i> en <i>Aantal resultaten</i>.
+        Over deze opties <a href="#options">later meer</a>. Als u op <u>Help</u> klikt wordt deze handleiding in
+        een nieuw scherm geopend. Bij <u>Selectie</u> kunt u het element zien waarvoor extra
+        informatie getoond wordt. Daarover meer in de sectie <a href="#extra_info">Extra informatie</a>.
+        </p>
+    
+    <h4><span>Andere versies van het hoofddocument</span></h4>
+        <p>
+        Onder het hoofdmenu in <u>venster A</u> ziet u welke versie van het hoofddocument opgevraagd is en of
+        dit wel of niet de meest recente versie is op de Metalex server. Als u hierop klikt
+        verschijnt een lijst met de andere beschikbare versies. Selecteert u een andere versie,
+        dan wordt deze in een nieuw browser tabblad (of venster) geopend.
+        </p>
+        
+    <h4><span>Belangrijke bronnen in de opgevraagde wet</span></h4>
+        <p>
+        Of het hoofddocument een volledige wet is of een gedeelte ervan, in <u>venster C</u>
+        worden altijd de belangrijkste bronnen binnen de betreffende wet getoond. Deze bronnen
+        zijn delen van de wet (artikelen maar ook hoofdstukken etc.) die in het citatienetwerk
+        voorkomen. Hoe belangrijk de bronnen zijn wordt op drie verschillende manieren bepaald.
+        Hierover meer in de sectie <a href="#sort">Sorteermethodes</a>. Het is
+        mogelijk dat bepaalde belangrijke artikelen niet in de lijst voorkomen, indien deze niet
+        of zeer weinig citeren of geciteerd worden.
+        </p>
+        <p>
+        Wanneer u op één van de resultaten klikt wordt het betreffende wetsartikel (of ander
+        element) onder het hoofddocument getoond (zie <u>venster E</u> in <a href="#help2">
+        de tweede schermafbeelding</a>).
+        </p>
+
+<h3 id="extra_info">Extra informatie bij hoofddocument</h3>
+    <p>
+    <u>Venster B</u> is interactief. Zoals gezegd worden geciteerde artikelen geopend
+    wanneer op referenties geklikt wordt. Wanneer u op andere tekst dan referenties klikt,
+    krijgt u extra informatie te zien in de rechterkant van het scherm, zie onderstaande
+    schermafbeelding (<u>vensters F &amp; G</u>).
+    Hoe dit werkt zal nu uitgelegd worden.
+    </p>
+    <img src="{% static 'wetten/help2.png' %}" id="help2" alt="Screenshot startscherm">
+
+    <h4><span>Klikken in de tekst</span></h4>
+        <p>
+        In de bovenstaande situatie is op het lijstnummer "a." van artikel 1.7 uit de Wet
+        inkomstenbelasting 2001 geklikt. Daarmee verandert de huidige "selectie". Artikel 1.7
+        is nu in focus, wat af te lezen is in <u>venster D</u>. De laagst mogelijke selectie
+        is op artikelniveau, behalve voor het tijdreizen, zie <a href="#tt">Andere versies
+        voor selectie</a>. U kunt
+        een hoofdstuk of ander overkoepelend onderdeel van een wet selecteren door op de titel
+        ervan te klikken. Na het klikken worden nieuwe gegevens geladen in de <u>vensters F &amp; G</u>.
+        </p>
+    
+    <h4><span>Belangrijke bronnen voor selectie</span></h4>
+        <p>
+        In de <u>vensters van F</u> worden twee lijsten getoond met bronnen die (mogelijk) belangrijk
+        zijn voor de huidige selectie. Net als bij <u>venster C</u> worden alleen bronnen getoond
+        die in het citatienetwerk voorkomen. Het eerste venster, <i>Belangrijke interne bronnen voor selectie</i>,
+        toont bronnen die de selectie citeren of erdoor geciteerd worden <i>en</i> afkomstig zijn uit
+        dezelfde wet als de selectie. Het tweede venster, <i>Belangrijke externe bronnen voor selectie</i>,
+        toont citerende of geciteerde bronnen uit andere wetten dan die van de selectie. De (korte) titels
+        van de betreffende wetten worden boven de citerende/geciteerde bron getoond. De drie
+        verschillende sorteermethodes komen <a href="#sort">binnenkort</a> aan bod. In de
+        bovenstaande schermafbeelding bestaan de twee lijsten dus uit artikelen (of hoofdstukken
+        etc.) die door artikel 1.7 geciteerd worden, of die dit artikel citeren.
+        </p>
+        <p>
+        Wanneer u op één van de resultaten klikt wordt het betreffende wetsartikel (of ander
+        element) onder het hoofddocument getoond (zie <u>venster E</u>).
+        </p>
+        <p>
+        <b>Belangrijk:</b> in principe kan elke wet opgevraagd worden door het bwb nummer
+        op te geven achter wetten/doc/. De getoonde resultaten zijn echter alleen gegarandeerd
+        volledig voor de zes wetten in het <i>Wetten</i> menu.
+        </p>
+        
+    <h4 id="tt"><span>Andere versies voor selectie</span></h4>
+        <p>
+        Andere versies voor het geselecteerde artikel (of ander element) worden in het
+        tijdreis venster getoond, <u>venster G</u>. Het laagste niveau waarop naar andere
+        versies gezocht wordt is alinea niveau. Klikt u dus op een alinea, of een lijstelement,
+        dan worden hier andere versies voor opgehaald. Bovendien zijn deze versies dan
+        gegarandeerd inhoudelijk verschillend van elkaar. Hier wordt melding van gegeven, zoals
+        ook in de schermafbeelding te zien is. De versie van de selectie komt ook altijd voor.
+        (Als deze versie inhoudelijk identiek is aan alle andere versies, kan het voorkomen dat
+        slechts de versie van de huidige selectie getoond wordt.)
+        </p>
+        <p>
+        Indien u op de titel van een artikel of hoofdstuk klikt worden alle versies van het
+        betreffende artikel of hoofdstuk
+        getoond. Wilt u liever niet op alinea niveau naar andere versies zoeken, dan kunt u
+        dit in de instellingen aangeven, zie <a href="#options">Opties</a>.
+        </p>
+        <p>
+        Klikt u in het tijdreis venster op één van de versies, dan wordt de inhoud ervan onder het hoofddocument
+        getoond, zoals in <u>venster E</u>. Op deze manier kunt u dus twee verschillende versies
+        van hetzelfde wetselement boven elkaar in een <i>split screen</i> bekijken en vergelijken.
+        </p>
+        
+    <h4><span>Split screen</span></h4>
+        <p>
+        Wanneer een referentie in het hoofddocument, een resultaat van
+        de <i>belangrijke bronnen</i>, of het tijdreis venster aangeklikt wordt, activeert
+        de split screen. De inhoud van het geciteerde artikel of de gekozen bron wordt dan
+        onder het hoofddocument getoond, zoals <u>venster E</u>. Dit venster kan gesloten
+        worden door op het kruisje te klikken. Referenties in het tweede scherm zijn klikbaar,
+        maar de inhoud van het gerefereerde element vervangt dan de vorige inhoud.
+        </p>
+        <p>
+        Indien u de volledige wet behorende bij het getoonde document wilt bekijken, dan
+        kunt u altijd op de link <i>Open bijbehorende wet in nieuw venster</i> klikken.
+        </p>
+        <p>
+        Ook <u>venster E</u> beschikt over een knop om alle versies van het getoonde document
+        weer te geven. De knop geeft aan welke versie geladen is en of dit wel of niet
+        de meest recente versie is op de Metalex server. <b>NB:</b> als u een eerdere versie
+        van de selectie (het artikel in focus) via het tijdreis venster ophaalt, is de knop
+        uitgeschakeld, zoals in de schermafbeelding te zien is.
+        </p>
+        
+    <h4 id="sort"><span>Sorteermethodes</span></h4>
+        <p>
+        De drie knoppen in <u>kader H</u> stellen de gewenste sorteermethode in voor de
+        resultaten bij <i>Belangrijke bronnen in deze wet</i>, <i>Belangrijke interne bronnen
+        voor selectie</i> en <i>Belangrijke externe bronnen voor selectie</i>. De verschillende
+        methodes worden hieronder uitgelegd.
+        <ul>
+            <li>
+            Methode 1 – in degree: deze methode sorteert de bronnen op <i>in degree</i>, van groot
+            naar klein. Dit houdt in dat bronnen die veel geciteerd worden hogerop komen dan
+            bronnen die weinig geciteerd worden. Er wordt niet gekeken hoeveel de bronnen zelf citeren.
+            </li>
+            <li>
+            Methode 2 – degree centrality: deze methode neemt ook het aantal geciteerde bronnen
+            mee in de sortering. Niet alleen veel geciteerde, maar ook bronnen die zelf veel verschillende
+            bronnen citeren eindigen hogerop.
+            </li>
+            <li>
+            Methode 3 – betweenness centrality: met deze methode eindigen bronnen die
+            als schakel in het citatienetwerk dienen, hogerop. 
+            </li>
+        </ul>
+        </p>
+    
+<h3 id="options">Opties</h3>
+    <p>
+    In het hoofdmenu kunt u het volgende tweetal instellingen aanpassen.
+    </p>
+    <h4><span>Tijdreis bereik</span></h4>
+        <p>
+        Standaard is <i>Alinea niveau</i> ingesteld. Dit betekent dat als op een alinea, lid
+        of lijst element geklikt wordt, inhoudelijk verschillende versies ervan opgehaald 
+        en in het tijdreis venster weergegeven worden.
+        Als u dit instelt op <i>Artikel niveau of hoger</i> wordt een klik op een alinea, lid
+        of lijst element beschouwd als een klik op het artikel zelf. Vervolgens worden alle
+        versies voor het hele artikel getoond en niet voor onderdelen ervan.
+        </p>
+        
+    <h4><span>Aantal resultaten</span></h4>
+        <p>
+        Hier kunt u instellen hoeveel resultaten getoond worden bij <i>Belangrijke bronnen in deze wet</i>, 
+        <i>Belangrijke interne bronnen voor selectie</i> en <i>Belangrijke externe bronnen 
+        voor selectie</i>. U kunt er voor kiezen om vijf, tien, twintig of alle resultaten
+        weergeven. De laadtijd zal wat langer zijn indien u er voor kiest alle resultaten
+        te laden. De standaard instelling is vijf resultaten.
+        </p>
+
+<h3>Afdelingen, paragrafen, titeldelen</h3>
+    <p>
+    Helaas is het op dit moment niet mogelijk om afdelingen, paragrafen en titeldelen weer
+    te geven in de split screen. Wanneer u op een referentie naar een dergelijk element klikt,
+    of op een resultaat in <i>Belangrijke bronnen</i> klikt, krijgt u een melding te zien.
+    Dit probleem heeft ook als gevolg dat het klikken op de titel van een paragraaf, afdeling
+    of titeldeel ertoe leidt dat het bovenliggende hoofdstuk geselecteerd wordt.
+    </p>
+
+<h3 id="evaluatie">Evaluatie</h3>
+    <p>
+    Indien u verzocht bent om feedback te geven over de applicatie, stuurt u dan a.u.b.
+    een bericht naar ivan.plantevin [at] student.uva.nl, waarbij u het volgende viertal
+    zaken toelicht. NB: indien u genoeg tijd heeft, zou u dit dan voor meer dan één van de
+    zes wetten in het <i>Wetten</i> menu willen doen (u hoeft de volgende punten niet per se
+    apart per wet te behandelen)? Als u vragen heeft kunt u naar het eerder genoemde adres
+    mailen.
+    </p>
+    <p>
+    <ul>
+        <li>
+        <b>Belangrijke bronnen voor wet:</b> zijn de bronnen getoond bij <i>Belangrijke bronnen voor deze wet</i>
+        inderdaad belangrijk? Welke sorteermethode vindt u het nuttigst? Indien de bronnen
+        die u zelf als belangrijk(st) beschouwd niet aanwezig zijn, welke bronnen zijn dit dan?
+        </li>
+        
+        <li>
+        <b>Belangrijke bronnen voor selectie:</b> zijn de bronnen die getoond worden wanneer
+        een gedeelte van het hoofddocument geselecteerd wordt inderdaad belangrijk? Welke
+        sorteermethode vindt u het nuttigst? Zijn er bronnen die niet in het citeernetwerk
+        zitten en dus niet getoond worden, maar wel belangrijk zijn? Zo ja, welke?
+        </li>
+        
+        <li>
+        <b>Versies en tijdreizen:</b> is het tijdreizen makkelijk in gebruik en is het duidelijk
+        hoe u op verschillende niveaus (alinea, artikel, hoofdstuk) kunt werken?</b>
+        </li>
+        
+        <li>
+        <b>Algemene gebruikservaring:</b> wat vind u van de applicatie als geheel? Is het makkelijk
+        in gebruik, is het snel genoeg, zijn er fouten opgetreden? Vind u de interface van
+        toegevoegde waarde, zou u de applicatie regelmatig gebruiken als ook andere (of alle)
+        wetten toegevoegd worden? Heeft u verder nog opmerkingen?</b>
+        </li>
+    </ul>
+    </p>
+    <p>
+    Hartelijk bedankt!
+    </p>
+</div>
+</body>
+</html>

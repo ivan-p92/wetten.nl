@@ -39,8 +39,8 @@ def doc(request, document):
         bwb_links.append(sparqlHelper.getLatestTitleAndExpressionForBWB(bwbDocument))
     
     # If only BWB number is provided , redirect to latest expression for BWB
-    if re.match('BWBR\d{7}$', document):
-        work = 'http://doc.metalex.eu/id/' + document
+    if re.match('BWBR\d{7}$', document.upper()):
+        work = 'http://doc.metalex.eu/id/' + document.upper()
         latestExpression = sparqlHelper.latestExpressionForWork(work)
         return redirect(sparqlHelper.wettenDocForId(latestExpression))
     else:
@@ -234,7 +234,7 @@ def metalexAndVersions(dateData, sparqlHelper):
     if bwb:
         dateString = re.search('\d\d\d\d-\d\d-\d\d', bestExpression).group(0)
         bwbExpression = '/wetten/doc/' + bwb.group(0) + '/nl/' + dateString + '/data.xml'
-        link = '<a class="open_bwb" href="'+ bwbExpression +'" target="_blank">Open bijbehorende wet in nieuw venster.</a>'
+        link = str('<a class="open_bwb" href="'+ bwbExpression +'" target="_blank">Open bijbehorende wet in nieuw venster.</a>')
         print 'The link: '+ link
         metalexXML = link + metalexXML
     
@@ -310,3 +310,7 @@ def metalexContent(request):
         metalexXML = link + metalexXML
     
     return HttpResponse(metalexXML)
+
+def handleiding(request):
+    
+    return render(request, 'wetten/handleiding.html')
