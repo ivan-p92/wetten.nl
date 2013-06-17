@@ -1,5 +1,6 @@
 var versionScope = 'alinea';
 var latestEntity = '';
+var detailsShown = false;
 
 // Do necessary bindings.
 $(document).ready( function() {
@@ -101,13 +102,15 @@ bindRefs();
 // Bind elements with class "result" and the timetravel results
 bindResults();
 
-// Update page width (layout) when browser window size changes.
+// Update page width and height (layout) when browser window size changes.
 $(window).on('resize', function(){
-	setWidth()
+	setWidth();
+	setHeight();
 });
 
 // Set the width according to browser window after document is ready
 setWidth()
+setHeight()
 
 // Bind click on maximum number of results option
 $('.maxResultSetter').bind('click', function(e) {
@@ -359,6 +362,42 @@ function setWidth() {
     }
 }
 
+// Adapt the height of the page's elements to the height of the browser window.
+function setHeight() {
+    var h = $(window).height();
+    console.log(h);
+    
+    if (h < 840) {
+        var diff = 840 - h;
+        var minus = Math.ceil(diff/4);
+        $('.important_for_bwb, .internal, .external, #timetravel').height(162 - minus);
+        if (detailsShown) {
+            $('#root_container').height(350 - 2*minus);
+        }
+        else {
+            $('#root_container').height(745 - 4*minus);
+        }
+        $('#result_details').height(340 - 2*minus);
+        $('#result_details').css('top', 485 - 2*minus);
+        $('#close_button').css('top', 470 - 2*minus);
+        $('#detail_version_picker').css('top', 455 - 2*minus);
+    }
+    else {
+        console.log('Height back to standard');
+        $('.important_for_bwb, .internal, .external, #timetravel').height(162);
+        if (detailsShown) {
+            $('#root_container').height(350);
+        }
+        else {
+            $('#root_container').height(745);
+        }
+        $('#result_details').height(340);
+        $('#result_details').css('top', 485);
+        $('#close_button').css('top', 470);
+        $('#detail_version_picker').css('top', 455);
+    }
+}
+
 // Loads relevant internal and external articles for clicked entity.
 function getRelated(entity) {
 	console.log('Getting related for: ' + entity);
@@ -398,7 +437,8 @@ function loadReferenceContent(about) {
     $('#result_details').show();
     $('#close_button').show();
     $('#detail_version_picker').show();
-    $('#root_container').height(350);
+    detailsShown = true;
+    setHeight();
 
     // Save old content in case error occurs
     var oldContent = $('#result_details').html();
@@ -431,7 +471,8 @@ function showDetails(entity) {
 	$('#result_details').show();
     $('#close_button').show();
     $('#detail_version_picker').show();
-	$('#root_container').height(350);
+    detailsShown = true;
+    setHeight();
 
     // Save old content in case error occurs
     var oldContent = $('#result_details').html();
@@ -463,7 +504,8 @@ function loadMetalexData(expression) {
 	$('#result_details').show();
 	$('#close_button').show();
     $('#detail_version_picker').show();
-	$('#root_container').height(350);
+	detailsShown = true;
+	setHeight();
 	
 	// Show that data is being loaded.
 	$('#result_details').html('<b style="color:green">Gegevens laden...</b>');
@@ -538,7 +580,8 @@ function hideDetails() {
 	$('#result_details').hide();
 	$('#close_button').hide();
 	$('#detail_version_picker').hide()
-	$('#root_container').height(745);
+	detailsShown = false;
+	setHeight();
 }
 
 // Retrieve and set versions for clicked result
