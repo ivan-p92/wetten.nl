@@ -4,6 +4,24 @@ Created on 6 mei 2013
 Parses SPARQL XML results and converts/stores them to a format
 suitable for centrality measurement (networkx graph format).
 
+The sparql results can be obtained with the following queries,
+where <BWB_ID> is replaced by actual id's of laws:
+
+For outgoing citations use:
+PREFIX mo: <http://www.metalex.eu/schema/1.0#> 
+
+SELECT DISTINCT * WHERE { 
+?e mo:realizes <http://doc.metalex.eu/id/<BWB_ID>> . 
+GRAPH ?e { 
+?c1 mo:cites ?c2 }} 
+
+For incoming citations use:
+PREFIX mo: <http://www.metalex.eu/schema/1.0#> 
+
+SELECT DISTINCT * WHERE { 
+?c1 mo:cites ?c2. 
+FILTER regex(str(?c2),"<BWB_ID>")} 
+
 @author: Ivan
 '''
 

@@ -22,7 +22,8 @@ class QueryNetwork:
     
     def __init__(self, graphFileName='graph.pickle'):
         """
-        Note: graph file must be in same directory as this module.
+        Note: graph file must be in same directory as this module. Make sure
+        to provide its name if it isn't graph.pickle.
         """
         self.dirName = path.dirname(__file__)
         t = time.time()
