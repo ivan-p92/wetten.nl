@@ -58,9 +58,9 @@ class SparqlHelper:
         # Create sparql query
         query = 'PREFIX mo: <http://www.metalex.eu/schema/1.0#>SELECT DISTINCT * WHERE {?e mo:realizes <' + \
             work + '> }'
-            
+                  
         # Pass query to sparql endpoint (through regular post request)
-        data = urllib2.urlopen('http://doc.metalex.eu:8000/sparql/', 'query=' + query + '&soft-limit=-1')
+        data = self.sparqlQuery(query)
         
         # Read xml and get results
         xml = mini.parseString(data.read())
@@ -113,10 +113,9 @@ class SparqlHelper:
         # Create sparql query
         query = 'SELECT DISTINCT ?title WHERE {<' + expression + '>' + \
             '<http://purl.org/dc/terms/title> ?title } LIMIT 1'
-#         print 'query: ' + query
         
         # Pass query to sparql endpoint (through regular post request)
-        data = urllib2.urlopen('http://doc.metalex.eu:8000/sparql/', 'query=' + query + '&soft-limit=-1')
+        data = self.sparqlQuery(query)
         
         # Read xml and get result
         xml = mini.parseString(data.read())
@@ -174,9 +173,9 @@ class SparqlHelper:
         query = 'SELECT ?cited WHERE {\
                  ?e <http://www.w3.org/2002/07/owl#sameAs> <' + reference + '>. \
                  ?e <http://www.metalex.eu/schema/1.0#cites> ?cited } LIMIT 1'
-                 
+                   
         # Pass query to sparql endpoint (through regular post request)
-        data = urllib2.urlopen('http://doc.metalex.eu:8000/sparql/', 'query=' + query + '&soft-limit=-1')
+        data = self.sparqlQuery(query)
         
         # Read xml and get result
         xml = mini.parseString(data.read())
@@ -276,9 +275,10 @@ class SparqlHelper:
          ?expression owl:sameAs <""" + hashURI + """>
         }
         """
+  
         # Pass query to sparql endpoint (through regular post request)
-        data = urllib2.urlopen('http://doc.metalex.eu:8000/sparql/', 'query=' + query + '&soft-limit=-1')
-        
+        data = self.sparqlQuery(query)
+
         # Read xml and get results
         xml = mini.parseString(data.read())
         results = xml.getElementsByTagName('result')
@@ -305,8 +305,9 @@ class SparqlHelper:
          <""" + currentExpression + """> mo:realizes ?work
         }
         """
+          
         # Pass query to sparql endpoint (through regular post request)
-        data = urllib2.urlopen('http://doc.metalex.eu:8000/sparql/', 'query=' + query + '&soft-limit=-1')
+        data = self.sparqlQuery(query)
         
         # Read xml and get results
         xml = mini.parseString(data.read())
@@ -326,8 +327,9 @@ class SparqlHelper:
          ?expression owl:sameAs ?hash
         }
         """
+          
         # Pass query to sparql endpoint (through regular post request)
-        data = urllib2.urlopen('http://doc.metalex.eu:8000/sparql/', 'query=' + query + '&soft-limit=-1')
+        data = self.sparqlQuery(query)
         
         # Read xml and get results
         xml = mini.parseString(data.read())
@@ -436,6 +438,15 @@ class SparqlHelper:
             dates = self.datesForExpressions(expressions)
             return dates['expressions'][dates['dates'][0]]       
 
+    def sparqlQuery(self, query):
+        """
+        Returns result of sparql query to metalex server
+        """
+        url = ('http://doc.metalex.eu:8000/sparql?debug=on&default-graph-uri='
+            '&format=application/sparql-results+xml&query=' + urllib2.quote(query) +
+            '&timeout=0')
+        
+        return urllib2.urlopen(url)
             
 def main():
     sh = SparqlHelper()
